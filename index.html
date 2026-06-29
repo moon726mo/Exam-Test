@@ -3863,10 +3863,9 @@ const APP = (() => {
     if (subjectName) shareText += `SUBJECT: ${subjectName}\n\n`;
 
     if (allQuestions && allQuestions.length > 0) {
-      shareText += `QUESTION\tOPTION 1\tOPTION 2\tOPTION 3\tOPTION 4\tANSWER\n`;
+      shareText += `QUESTION\tANSWER\n`;
       allQuestions.forEach(q => {
-        const opts = q.options || [];
-        shareText += `${q.text || ''}\t${opts[0]||''}\t${opts[1]||''}\t${opts[2]||''}\t${opts[3]||''}\t${q.answer||''}\n`;
+        shareText += `${q.text || ''}\t${q.answer||''}\n`;
       });
     } else {
       shareText += '(কোনো subject বা chapter নির্বাচন করা নেই)';
