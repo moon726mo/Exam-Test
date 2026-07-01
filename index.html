@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#1a1f2e">
-<title>MCQ</title>
+<title>EXAM TEST</title>
 
 <!-- PWA -->
 <link rel="manifest" href="./manifest.json">
@@ -93,6 +93,15 @@ select{font-family:inherit;color:inherit}
 .section-label{
   font-size:11px;font-weight:600;letter-spacing:1px;
   text-transform:uppercase;color:var(--text3);margin-bottom:8px;
+}
+
+/* ─── PROMPT SECTION CATEGORY LABELS ─── */
+#screen-ai-answer .section-label,
+#screen-mcq-ai-answer .section-label,
+#ai-prompt-modal-overlay .section-label,
+#mcq-ai-prompt-modal-overlay .section-label {
+  font-size:14px;font-weight:800;letter-spacing:.5px;
+  color:var(--text);
 }
 
 /* ─── SUBJECT GRID ─── */
@@ -748,8 +757,8 @@ body.has-nav .screen{padding-bottom:76px}
   <div class="settings-group">
     <div class="toggle-row" style="flex-direction:column;align-items:stretch;gap:8px;padding:14px 0">
       <div>
-        <div class="toggle-label">Apps Script Web App URL</div>
-        <div class="toggle-sub">Google Sheet → Apps Script Deploy করে এখানে URL দিন</div>
+        <div class="toggle-label">MCQ Apps Script URL</div>
+        <div class="toggle-sub"></div>
       </div>
       <input id="gsheet-url" type="text" class="input-field" placeholder="https://script.google.com/macros/s/xxxx/exec">
       <div class="flex gap-2">
@@ -768,8 +777,8 @@ body.has-nav .screen{padding-bottom:76px}
   <div class="settings-group">
     <div class="toggle-row" style="flex-direction:column;align-items:stretch;gap:8px;padding:14px 0">
       <div>
-        <div class="toggle-label">AI Checker Apps Script URL</div>
-        <div class="toggle-sub">সৃজনশীল/জ্ঞানমূলক/Paragraph উত্তর AI দিয়ে চেক করার জন্য endpoint URL — Question Bank ও Result History সিঙ্কও এই একই URL দিয়ে হবে</div>
+        <div class="toggle-label">AI Test Apps Script URL</div>
+        <div class="toggle-sub"></div>
       </div>
       <input id="ai-checker-url" type="text" class="input-field" placeholder="https://script.google.com/macros/s/xxxx/exec">
       <div class="flex gap-2">
@@ -1153,7 +1162,7 @@ body.has-nav .screen{padding-bottom:76px}
     <textarea id="ai-new-prompt-text" class="textarea-field" placeholder="এখানে প্রম্পট লিখুন..." style="min-height:90px;margin-bottom:10px"></textarea>
     <button class="btn btn-primary btn-full" style="margin-bottom:18px" onclick="APP.aiAddPrompt()">➕ প্রম্পট যুক্ত করুন</button>
 
-    <div class="section-label">সংরক্ষিত প্রম্পটসমূহ</div>
+
     <button class="btn btn-secondary btn-full btn-sm" style="margin-bottom:10px" onclick="APP.aiSyncPromptsFromQBank()">🔄 Synced প্রশ্ন থেকে Prompt আনুন</button>
     <div id="ai-prompt-list" style="margin-bottom:14px"></div>
 
@@ -1253,7 +1262,7 @@ body.has-nav .screen{padding-bottom:76px}
     <textarea id="mcq-ai-new-prompt-text" class="textarea-field" placeholder="এখানে প্রম্পট লিখুন..." style="min-height:90px;margin-bottom:10px"></textarea>
     <button class="btn btn-primary btn-full" style="margin-bottom:18px" onclick="APP.mcqAiAddPrompt()">➕ প্রম্পট যুক্ত করুন</button>
 
-    <div class="section-label">সংরক্ষিত প্রম্পটসমূহ</div>
+  
     <div id="mcq-ai-prompt-list" style="margin-bottom:14px"></div>
 
     <button class="btn btn-secondary btn-full" onclick="APP.mcqAiClosePromptModal()">বন্ধ করুন</button>
@@ -1345,6 +1354,7 @@ const APP = (() => {
       // prompts
       prompts: [],
       selectedPromptId: null,
+      expandedPromptCategory: null,
       // question list multi-select
       selectedQuestions: [],   // [{ _cat, _idx, question, modelAnswer, marks }]
       // exam mode (question-paper style timed test before AI answer screen)
@@ -1429,7 +1439,7 @@ const APP = (() => {
     if (state.syncing) return;
     state.syncing = true;
     const btn = $('btn-sheet-sync');
-    if (btn) { btn.disabled = true; btn.textContent = '⏳ সিঙ্ক হচ্ছে...'; }
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ '; }
     updateSyncStatusUI('⏳ Google Sheet থেকে প্রশ্ন আনা হচ্ছে...');
 
     fetch(url + (url.includes('?') ? '&' : '?') + 't=' + Date.now())
@@ -1457,7 +1467,7 @@ const APP = (() => {
       })
       .finally(() => {
         state.syncing = false;
-        if (btn) { btn.disabled = false; btn.textContent = '🔄 সিঙ্ক করুন'; }
+        if (btn) { btn.disabled = false; btn.textContent = '🔄 SYNC'; }
       });
   }
 
@@ -3564,6 +3574,11 @@ const APP = (() => {
     else preview.classList.add('hidden');
   }
 
+  function aiTogglePromptCategory(cat) {
+    state.ai.expandedPromptCategory = (state.ai.expandedPromptCategory === cat) ? null : cat;
+    aiRenderPromptList();
+  }
+
   function aiRenderPromptList() {
     const el = $('ai-prompt-list');
     if (!el) return;
@@ -3582,6 +3597,7 @@ const APP = (() => {
     });
 
     el.innerHTML = Object.keys(groups).sort().map(cat => {
+      const isOpen = state.ai.expandedPromptCategory === cat;
       const items = groups[cat].map((p, idx) => {
         const isSel = inAnswer && p.id === state.ai.selectedPromptId;
         return `<div class="ai-question-list-item" style="${isSel ? 'border-color:var(--accent)' : ''}">
@@ -3590,14 +3606,17 @@ const APP = (() => {
             <div style="font-size:13px;color:var(--text2);white-space:pre-wrap">${escapeHtml(p.text).slice(0,140)}${p.text.length>140?'…':''}</div>
           </div>
           <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">
-            ${inAnswer ? `<button class="btn btn-sm ${isSel?'btn-secondary':'btn-primary'}" onclick="APP.aiSelectPrompt('${p.id}')">${isSel?'বাদ দিন':'নির্বাচন'}</button>` : ''}
+            ${inAnswer ? `<button class="btn btn-sm ${isSel?'btn-secondary':'btn-primary'}" onclick="APP.aiSelectPrompt('${p.id}')">${isSel?'বাদ দিন':'SELECT'}</button>` : ''}
             ${p.source==='sheet' ? '' : `<button class="btn btn-icon btn-secondary btn-sm" onclick="APP.aiDeletePrompt('${p.id}')">🗑️</button>`}
           </div>
         </div>`;
       }).join('');
-      return `<div style="margin-bottom:14px">
-        <div class="section-label" style="margin-bottom:6px">${escapeHtml(cat)}</div>
-        ${items}
+      return `<div style="margin-bottom:10px">
+        <button class="btn btn-secondary btn-full" style="justify-content:space-between;display:flex;align-items:center" onclick="APP.aiTogglePromptCategory('${escapeHtml(cat).replace(/'/g, "\\'")}')">
+          <span>${escapeHtml(cat)} (${groups[cat].length})</span>
+          <span>${isOpen ? '▲' : '▼'}</span>
+        </button>
+        ${isOpen ? `<div style="margin-top:8px">${items}</div>` : ''}
       </div>`;
     }).join('');
   }
@@ -3668,6 +3687,7 @@ const APP = (() => {
   // AI Test section-এর state.ai.prompts সরাসরি use করে (same prompts, same storage)
   let mcqAiLocalState = {
     selectedPromptId: null,  // MCQ section-এর নিজস্ব selection (AI Test-এর selection-এর সাথে conflict নেই)
+    expandedPromptCategory: null,
     answerMode: 'image',
     imageDataUrl: null,
     examMode: 'all',   // 'all' | 'custom' | 'range'
@@ -3724,6 +3744,11 @@ const APP = (() => {
     else preview.classList.add('hidden');
   }
 
+  function mcqAiTogglePromptCategory(cat) {
+    mcqAiLocalState.expandedPromptCategory = (mcqAiLocalState.expandedPromptCategory === cat) ? null : cat;
+    mcqAiRenderPromptList();
+  }
+
   function mcqAiRenderPromptList() {
     const el = $('mcq-ai-prompt-list');
     if (!el) return;
@@ -3741,6 +3766,7 @@ const APP = (() => {
     });
 
     el.innerHTML = Object.keys(groups).sort().map(cat => {
+      const isOpen = mcqAiLocalState.expandedPromptCategory === cat;
       const items = groups[cat].map((p, idx) => {
         const isSel = p.id === mcqAiLocalState.selectedPromptId;
         return `<div class="ai-question-list-item" style="${isSel ? 'border-color:var(--accent)' : ''}">
@@ -3749,14 +3775,17 @@ const APP = (() => {
             <div style="font-size:13px;color:var(--text2);white-space:pre-wrap">${escapeHtml(p.text).slice(0,140)}${p.text.length>140?'…':''}</div>
           </div>
           <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">
-            <button class="btn btn-sm ${isSel?'btn-secondary':'btn-primary'}" onclick="APP.mcqAiSelectPrompt('${p.id}')">${isSel?'বাদ দিন':'নির্বাচন'}</button>
+            <button class="btn btn-sm ${isSel?'btn-secondary':'btn-primary'}" onclick="APP.mcqAiSelectPrompt('${p.id}')">${isSel?'বাদ দিন':'SELECT'}</button>
             ${p.source==='sheet' ? '' : `<button class="btn btn-icon btn-secondary btn-sm" onclick="APP.mcqAiDeletePrompt('${p.id}')">🗑️</button>`}
           </div>
         </div>`;
       }).join('');
-      return `<div style="margin-bottom:14px">
-        <div class="section-label" style="margin-bottom:6px">${escapeHtml(cat)}</div>
-        ${items}
+      return `<div style="margin-bottom:10px">
+        <button class="btn btn-secondary btn-full" style="justify-content:space-between;display:flex;align-items:center" onclick="APP.mcqAiTogglePromptCategory('${escapeHtml(cat).replace(/'/g, "\\'")}')">
+          <span>${escapeHtml(cat)} (${groups[cat].length})</span>
+          <span>${isOpen ? '▲' : '▼'}</span>
+        </button>
+        ${isOpen ? `<div style="margin-top:8px">${items}</div>` : ''}
       </div>`;
     }).join('');
   }
@@ -3933,11 +3962,11 @@ const APP = (() => {
     aiOpenExamSetup, aiCloseExamSetup, aiExamToggleSetting, aiStartExam, aiStartAiTest,
     aiShowExitExamConfirm, aiConfirmSubmitExam,
     aiSubmitAnswer, aiShareToApps, aiCopyPromptAgain,
-    aiOpenPromptModal, aiClosePromptModal, aiAddPrompt, aiDeletePrompt, aiSelectPrompt,
+    aiOpenPromptModal, aiClosePromptModal, aiAddPrompt, aiDeletePrompt, aiSelectPrompt, aiTogglePromptCategory,
     aiProviderFieldsToggle, aiSaveAIConfig,
     aiToggleAutoSync,
     // MCQ AI module
-    mcqAiOpenPromptModal, mcqAiClosePromptModal, mcqAiAddPrompt, mcqAiDeletePrompt, mcqAiSelectPrompt,
+    mcqAiOpenPromptModal, mcqAiClosePromptModal, mcqAiAddPrompt, mcqAiDeletePrompt, mcqAiSelectPrompt, mcqAiTogglePromptCategory,
     mcqAiSetExamMode, mcqAiSetAnswerMode, mcqAiHandleImageSelect, mcqAiShareToApps, mcqAiCopyPromptAgain,
   };
 })();
