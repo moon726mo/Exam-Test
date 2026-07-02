@@ -13,7 +13,7 @@
 <link rel="apple-touch-icon" href="./icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="MCQ">
+<meta name="apple-mobile-web-app-title" content="EXAM TEST">
 <meta name="mobile-web-app-capable" content="yes">
 <style>
 /* ─── DESIGN TOKENS ─── */
@@ -161,6 +161,28 @@ select{font-family:inherit;color:inherit}
 }
 .input-field:focus{border-color:var(--accent)}
 .input-field::placeholder{color:var(--text3)}
+#home-diary-date{color-scheme:dark}
+#home-diary-date::-webkit-calendar-picker-indicator{
+  filter:invert(1) brightness(2) saturate(0);
+  cursor:pointer;
+  width:22px;height:22px;
+  padding:5px;
+  background-color:var(--accent);
+  border-radius:6px;
+  opacity:1;
+}
+.home-diary-subject-label{display:block;font-size:14px;font-weight:800;color:var(--text);margin-bottom:6px}
+.home-diary-overview-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;margin-bottom:10px;cursor:pointer;transition:border-color .15s}
+.home-diary-overview-card:active{border-color:var(--accent)}
+.home-diary-overview-date{font-size:17px;font-weight:800;color:var(--accent);margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
+.home-diary-overview-table{width:100%;border-collapse:collapse;border:1.5px solid var(--border);border-radius:6px;overflow:hidden}
+.home-diary-overview-table th{background:var(--text);color:var(--surface);font-size:13px;font-weight:800;text-align:left;padding:8px 10px;border:1px solid var(--border)}
+.home-diary-overview-table td{font-size:14px;color:var(--text);padding:8px 10px;border:1px solid var(--border);vertical-align:top;white-space:pre-wrap;word-break:break-word}
+.home-diary-overview-table td.home-diary-overview-subject-cell{font-weight:700;width:30%}
+.home-diary-overview-subject{font-size:16px;font-weight:700;color:var(--text);margin-top:8px}
+.home-diary-overview-subject:first-of-type{margin-top:0}
+.home-diary-overview-lesson{font-size:15px;color:var(--text2);margin-top:2px;white-space:pre-wrap;word-break:break-word}
+.home-diary-overview-lesson.empty{color:var(--text3);font-style:italic}
 
 /* ─── BUTTONS ─── */
 .btn{
@@ -387,6 +409,23 @@ select{font-family:inherit;color:inherit}
 @keyframes slideUp{from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1}}
 .modal-title{font-size:17px;font-weight:700;margin-bottom:16px}
 
+/* ─── ROUTINE VIEW: Screenshot-style Class Schedule Table ─── */
+.rv-table{border-collapse:separate;border-spacing:3px;min-width:640px;width:100%}
+.rv-th{
+  color:#fff;font-weight:800;font-size:13px;text-align:center;
+  padding:10px 8px;border-radius:6px;white-space:nowrap;
+}
+.rv-th.rv-navy{background:#2c3e50}
+.rv-th.rv-brown{background:#b5651d}
+.rv-th.rv-today{background:var(--accent);color:#111}
+.rv-td{
+  background:#e9ddd1;color:#3a2f28;font-size:12.5px;font-weight:600;
+  text-align:center;padding:10px 8px;border-radius:6px;min-width:96px;
+}
+.rv-td.empty{background:#f2eae1;color:#b7a898}
+.rv-td.rv-today{background:#fff3cf;border:1.5px solid var(--accent);color:#3a2f28}
+.rv-empty-wrap{padding:24px 8px;text-align:center;color:var(--text2)}
+
 /* ─── SETTINGS ITEM ─── */
 .settings-group{
   background:var(--surface);border:1px solid var(--border);
@@ -513,18 +552,82 @@ body.has-nav .screen{padding-bottom:76px}
   .screen{padding:24px}
   body.has-nav .screen{padding-bottom:80px}
 }
+
+/* ─── SETTINGS SCREEN — redesign (screenshot-matched) ─── */
+#screen-settings .app-title{font-size:22px}
+#screen-settings .section-label{
+  font-size:20px;font-weight:800;letter-spacing:-.2px;
+  text-transform:none;color:var(--text);
+  margin:22px 0 12px;
+}
+#screen-settings .section-label:first-of-type{margin-top:0}
+#screen-settings .settings-group{
+  border-radius:16px;padding:0 16px;background:var(--surface);
+  border:1px solid var(--border);margin-bottom:20px;
+}
+#screen-settings .toggle-row{padding:16px 0}
+#screen-settings .toggle-label{font-weight:700;font-size:15px}
+#screen-settings .toggle-sub{font-size:12.5px;margin-top:3px;line-height:1.5}
+#screen-settings .flex.gap-2 > .input-field{border-radius:10px}
+#screen-settings .btn{
+  border-radius:9px;height:38px;padding:0 18px;
+  font-size:13.5px;font-weight:700;letter-spacing:.1px;
+  flex-shrink:0;box-shadow:0 2px 8px rgba(236,72,107,.25);
+}
+#screen-settings .btn-primary,
+#screen-settings .btn-secondary,
+#screen-settings .btn-success{
+  background:linear-gradient(135deg,#ef6688,#e8425f);
+  color:#fff;border:none;
+}
+#screen-settings .btn-primary:hover,
+#screen-settings .btn-secondary:hover,
+#screen-settings .btn-success:hover{
+  background:linear-gradient(135deg,#f37b98,#ec5470);
+}
+#screen-settings .btn-sm{height:36px;padding:0 16px}
+#screen-settings .btn-full{box-shadow:none}
 </style>
 </head>
 <body class="has-nav">
 
 <!-- ══════════════════════════════════════
-     SCREEN: HOME
+     SCREEN: APP HOME (নতুন হোম সেকশন)
 ══════════════════════════════════════ -->
-<div id="screen-home" class="screen active">
+<div id="screen-app-home" class="screen active">
+  <div class="app-header">
+    <div class="app-logo">🏠</div>
+    <div>
+      <div class="app-title">HOME</div>
+      <div class="app-subtitle">সব প্রম্পট এক জায়গায়</div>
+    </div>
+    <span id="home-header-today" style="margin-left:auto;font-weight:700;font-size:13px;color:var(--text2);white-space:nowrap"></span>
+  </div>
+
+  <div class="section-label">দৈনিক ডায়েরি</div>
+  <button class="btn btn-primary btn-full" onclick="APP.openHomeDiaryModal()">
+    📔 DIARY
+  </button>
+
+  <div class="section-label" style="margin-top:16px">সাপ্তাহিক রুটিন</div>
+  <button class="btn btn-primary btn-full" onclick="APP.openHomeRoutineModal()">
+    🗓️ ROUTINE
+  </button>
+
+  <div class="section-label" style="margin-top:16px">প্রম্পট ম্যানেজমেন্ট</div>
+  <button class="btn btn-primary btn-full" onclick="APP.openHomePromptModal()">
+    📋 PROMPT
+  </button>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN: HOME (MCQ)
+══════════════════════════════════════ -->
+<div id="screen-home" class="screen">
   <div class="app-header">
     <div class="app-logo">🎯</div>
     <div>
-      <div class="app-title">MCQ</div>
+      <div class="app-title">MCQ TEST</div>
       <div class="app-subtitle" id="home-stats">লোড হচ্ছে...</div>
     </div>
   </div>
@@ -713,7 +816,7 @@ body.has-nav .screen{padding-bottom:76px}
   <!-- Tabs -->
   <div class="ai-tabs" style="margin-bottom:14px">
     <div class="ai-tab active" id="htab-mcq" onclick="APP.switchHistoryTab('mcq')">📝 MCQ</div>
-    <div class="ai-tab" id="htab-ai" onclick="APP.switchHistoryTab('ai')">🧠 AI টেস্ট</div>
+    <div class="ai-tab" id="htab-ai" onclick="APP.switchHistoryTab('ai')">🧠 AI TEST</div>
   </div>
 
   <!-- MCQ Tab -->
@@ -737,6 +840,12 @@ body.has-nav .screen{padding-bottom:76px}
 <div id="screen-settings" class="screen">
   <div class="app-header">
     <div><div class="app-title">সেটিংস</div></div>
+  </div>
+
+  <div class="section-label">Google Drive লিংক</div>
+  <div class="flex gap-2" style="margin-bottom:16px">
+    <input id="gdrive-link" type="text" class="input-field" placeholder="Google Drive লিংক পেস্ট করুন" style="flex:1" oninput="APP.saveDriveLink()">
+    <button class="btn btn-primary" onclick="APP.openDriveLink()">Open</button>
   </div>
 
   <div class="section-label">Result PIN</div>
@@ -790,6 +899,18 @@ body.has-nav .screen{padding-bottom:76px}
     <div class="toggle-row">
       <div><div class="toggle-label">App খোলার সময় Auto-sync</div><div class="toggle-sub">প্রতিবার চালু হলে Sheet থেকে প্রশ্ন আনবে</div></div>
       <button class="toggle" id="toggle-ai-autosync" onclick="APP.aiToggleAutoSync()"></button>
+    </div>
+  </div>
+
+  <div class="section-label">Routine & Diary সিঙ্ক</div>
+  <div class="settings-group">
+    <div class="toggle-row" style="flex-direction:column;align-items:stretch;gap:8px;padding:14px 0">
+      <div>
+        <div class="toggle-label">Sheet ↔ App সিঙ্ক</div>
+        <div class="toggle-sub">উপরের "AI Test Apps Script URL" ব্যবহার হয়। কিছু লিখলেই App → Sheet auto-sync হয়। App-এর ডেটা খালি থাকলে Sheet থেকে আনতে নিচের বাটন চাপুন।</div>
+      </div>
+      <button class="btn btn-success btn-sm btn-full" id="btn-rd-sync" onclick="APP.homeSyncRoutineDiaryFromSheet()">🔄 SYNC</button>
+      <div class="toggle-sub" id="rd-sync-status">এখনো সিঙ্ক করা হয়নি</div>
     </div>
   </div>
 
@@ -858,7 +979,7 @@ body.has-nav .screen{padding-bottom:76px}
   <div class="app-header">
     <div class="app-logo">🧠</div>
     <div>
-      <div class="app-title">AI টেস্ট</div>
+      <div class="app-title">AI TEST </div>
       <div class="app-subtitle" id="ai-home-subtitle">বিষয় নির্বাচন করুন</div>
     </div>
   </div>
@@ -1123,7 +1244,11 @@ body.has-nav .screen{padding-bottom:76px}
      BOTTOM NAVIGATION
 ══════════════════════════════════════ -->
 <nav class="bottom-nav" id="bottom-nav">
-  <button class="nav-btn active" id="nav-home" onclick="APP.showScreen('home')">
+  <button class="nav-btn active" id="nav-app-home" onclick="APP.showScreen('app-home')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9.5 12 3l9 6.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/></svg>
+    HOME
+  </button>
+  <button class="nav-btn" id="nav-home" onclick="APP.showScreen('home')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/><circle cx="15" cy="15" r="1.5" fill="currentColor"/><path d="M6 6h.01M6 12h3"/></svg>
     MCQ
   </button>
@@ -1140,6 +1265,70 @@ body.has-nav .screen{padding-bottom:76px}
     সেটিংস
   </button>
 </nav>
+
+<!-- Home: সব প্রম্পট Modal -->
+<div class="modal-overlay hidden" id="home-prompt-modal-overlay">
+  <div class="modal-box">
+    <div class="modal-title">📋 সব প্রম্পট</div>
+    <div id="home-prompt-list" style="margin-bottom:14px;max-height:60vh;overflow-y:auto"></div>
+    <button class="btn btn-secondary btn-full" onclick="APP.closeHomePromptModal()">বন্ধ করুন</button>
+  </div>
+</div>
+
+<!-- Home: ROUTINE Modal (default: সম্পূর্ণ রুটিন view, "সব" পিল + দিন পিল দিয়ে সুইচ) -->
+<div class="modal-overlay hidden" id="home-routine-modal-overlay">
+  <div class="modal-box" style="max-height:90vh">
+    <div class="modal-title">🗓️ সাপ্তাহিক রুটিন</div>
+    <div class="mode-pills" id="home-routine-day-pills" style="margin-bottom:14px;flex-wrap:wrap"></div>
+
+    <div id="home-routine-view-wrap" style="overflow-x:auto;margin-bottom:14px;border-radius:10px">
+      <div id="home-routine-view-table"></div>
+    </div>
+
+    <div id="home-routine-edit-wrap" class="hidden">
+      <div class="flex gap-2" style="margin-bottom:12px">
+        <input id="home-routine-subject-input" type="text" class="input-field" placeholder="সাবজেক্টের নাম লিখুন" style="margin-bottom:0" onkeydown="if(event.key==='Enter'){APP.homeAddRoutineSubject()}">
+        <button class="btn btn-primary" style="flex-shrink:0" onclick="APP.homeAddRoutineSubject()">+ যোগ</button>
+      </div>
+      <div id="home-routine-subject-list" style="margin-bottom:14px;max-height:40vh;overflow-y:auto"></div>
+    </div>
+
+    <button class="btn btn-secondary btn-full" onclick="APP.closeHomeRoutineModal()">বন্ধ করুন</button>
+  </div>
+</div>
+
+<!-- Home: DIARY Modal -->
+<div class="modal-overlay hidden" id="home-diary-modal-overlay">
+  <div class="modal-box">
+    <div class="modal-title">📔 দৈনিক ডায়েরি</div>
+
+    <!-- সাম্প্রতিক দিনগুলোর সব ডায়েরি এক সাথে (Overview page) -->
+    <div id="home-diary-overview-view">
+      <div id="home-diary-today" style="font-weight:700;font-size:13px;color:var(--text2);margin-bottom:10px;text-align:center"></div>
+      <div class="flex gap-2" style="margin-bottom:12px">
+        <button class="btn btn-primary btn-full" onclick="APP.homeDiaryNewEntry()">✏️ নতুন / আজকের এন্ট্রি</button>
+      </div>
+      <div id="home-diary-overview-list" style="margin-bottom:14px;max-height:55vh;overflow-y:auto"></div>
+      <button class="btn btn-secondary btn-full" onclick="APP.closeHomeDiaryModal()">বন্ধ করুন</button>
+    </div>
+
+    <!-- নির্দিষ্ট তারিখের ডায়েরি এডিট (Editor page) -->
+    <div id="home-diary-editor-view" class="hidden">
+      <div class="flex gap-2" style="margin-bottom:12px;align-items:center">
+        <button class="btn btn-icon btn-secondary" onclick="APP.homeDiaryShiftDate(-1)" title="আগের দিন">◀</button>
+        <input id="home-diary-date" type="date" class="input-field" style="margin-bottom:0;flex:1" onchange="APP.homeDiaryDateChange()">
+        <button class="btn btn-icon btn-secondary" onclick="APP.homeDiaryShiftDate(1)" title="পরের দিন">▶</button>
+      </div>
+      <div class="flex gap-2" style="margin-bottom:12px">
+        <input id="home-diary-subject-input" type="text" class="input-field" placeholder="নতুন সাবজেক্ট যোগ করুন" style="margin-bottom:0" onkeydown="if(event.key==='Enter'){APP.homeDiaryAddSubject()}">
+        <button class="btn btn-primary" style="flex-shrink:0" onclick="APP.homeDiaryAddSubject()">+ যোগ</button>
+      </div>
+      <div id="home-diary-subject-list" style="margin-bottom:14px;max-height:50vh;overflow-y:auto"></div>
+      <button class="btn btn-secondary btn-full" style="margin-bottom:8px" onclick="APP.homeDiaryShowOverview()">◀ সব দিনের ডায়েরি</button>
+      <button class="btn btn-secondary btn-full" onclick="APP.closeHomeDiaryModal()">বন্ধ করুন</button>
+    </div>
+  </div>
+</div>
 
 <!-- Confirm Modal -->
 <div class="modal-overlay hidden" id="modal-overlay">
@@ -1166,7 +1355,7 @@ body.has-nav .screen{padding-bottom:76px}
     <button class="btn btn-secondary btn-full btn-sm" style="margin-bottom:10px" onclick="APP.aiSyncPromptsFromQBank()">🔄 Synced প্রশ্ন থেকে Prompt আনুন</button>
     <div id="ai-prompt-list" style="margin-bottom:14px"></div>
 
-    <button class="btn btn-secondary btn-full" onclick="APP.aiClosePromptModal()">বন্ধ করুন</button>
+    <button class="btn btn-secondary btn-full" onclick="APP.aiClosePromptModal()">CLOSE</button>
   </div>
 </div>
 
@@ -1265,7 +1454,7 @@ body.has-nav .screen{padding-bottom:76px}
   
     <div id="mcq-ai-prompt-list" style="margin-bottom:14px"></div>
 
-    <button class="btn btn-secondary btn-full" onclick="APP.mcqAiClosePromptModal()">বন্ধ করুন</button>
+    <button class="btn btn-secondary btn-full" onclick="APP.mcqAiClosePromptModal()">CLOSE</button>
   </div>
 </div>
 
@@ -1290,6 +1479,7 @@ const APP = (() => {
     sheetUrl:   'mcq_sheet_url',
     autoSync:   'mcq_autosync',
     lastSync:   'mcq_last_sync',
+    driveLink:  'mcq_drive_link',
     // AI Test module (separate namespace, does not touch MCQ data)
     aiQBank:      'ai_subj_qbank',
     aiCheckerUrl: 'ai_checker_url',
@@ -1298,6 +1488,9 @@ const APP = (() => {
     aiPrompts:    'ai_prompts',
     aiAutoSync:   'ai_autosync',
     aiExamState:  'ai_exam_state',
+    homeRoutine:  'home_routine',
+    homeDiary:    'home_diary',
+    rdLastSync:   'rd_last_sync',
   };
   const DEFAULT_PIN = '1234';
 
@@ -1318,7 +1511,7 @@ const APP = (() => {
 
   // ─── STATE ───
   let state = {
-    screen: 'home',
+    screen: 'app-home',
     // Setup
     selectedSubjectId: null,
     selectedChapterIds: [],
@@ -1336,6 +1529,10 @@ const APP = (() => {
     sheetUrl: null,
     autoSync: false,
     syncing: false,
+    // Home: সাপ্তাহিক রুটিন — { sat:[subjects], sun:[...], ... }
+    routine: {},
+    // Home: ডায়েরি — { 'YYYY-MM-DD': { subjects:[...], lessons:{subject:text} } }
+    diary: {},
     // AI Test module — fully separate state namespace
     ai: {
       qbank: {},        // { subjectName: { chapters: { chapterName: { categories: { catName: [questions] } } } } }
@@ -1370,7 +1567,11 @@ const APP = (() => {
     loadSettings();
     loadCustomQBank();
     loadSheetConfig();
+    loadDriveLink();
     checkInterruptedExam();
+    loadHomeRoutine();
+    loadHomeDiary();
+    renderHomeDiaryToday();
     renderHome();
     renderSettings();
     setupPinInputs();
@@ -1892,6 +2093,24 @@ const APP = (() => {
     toast('✅ PIN সংরক্ষিত হয়েছে');
   }
 
+  // ─── GOOGLE DRIVE LINK ───
+  function loadDriveLink() {
+    const link = localStorage.getItem(STORAGE_KEYS.driveLink) || '';
+    const el = $('gdrive-link');
+    if (el) el.value = link;
+  }
+
+  function saveDriveLink() {
+    const val = ($('gdrive-link').value || '').trim();
+    localStorage.setItem(STORAGE_KEYS.driveLink, val);
+  }
+
+  function openDriveLink() {
+    const val = ($('gdrive-link').value || '').trim() || localStorage.getItem(STORAGE_KEYS.driveLink) || '';
+    if (!val) { toast('❌ প্রথমে Google Drive লিংক দিন'); return; }
+    window.open(val, '_blank');
+  }
+
   // ─── RENDER RESULT ───
   function renderResult(result) {
     if (!result) return;
@@ -2162,6 +2381,8 @@ const APP = (() => {
     const history = ls_get(STORAGE_KEYS.history) || [];
     $('sys-info').innerHTML = `বিষয়: ${subs.length}<br>মোট প্রশ্ন: ${totalQ}<br>মোট পরীক্ষা: ${history.length}<br>সিস্টেম: MCQ Exam System v1.0`;
     updateSyncStatusUI();
+    rdUpdateSyncStatusUI();
+    loadDriveLink();
   }
 
   function importQuestions(event) {
@@ -2267,7 +2488,7 @@ const APP = (() => {
 
     // Update nav active state
     document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-    const navMap = { home: 'nav-home', history: 'nav-history', settings: 'nav-settings', 'ai-home': 'nav-ai' };
+    const navMap = { 'app-home': 'nav-app-home', home: 'nav-home', history: 'nav-history', settings: 'nav-settings', 'ai-home': 'nav-ai' };
     if (navMap[name]) $(navMap[name]).classList.add('active');
 
     // Screen-specific init
@@ -3621,6 +3842,589 @@ const APP = (() => {
     }).join('');
   }
 
+  // ─── HOME SCREEN: সব প্রম্পট (view + copy) ───
+  function openHomePromptModal() {
+    renderHomePromptList();
+    $('home-prompt-modal-overlay').classList.remove('hidden');
+  }
+
+  function closeHomePromptModal() {
+    $('home-prompt-modal-overlay').classList.add('hidden');
+  }
+
+  function renderHomePromptList() {
+    const el = $('home-prompt-list');
+    if (!el) return;
+    if (!state.ai.prompts || state.ai.prompts.length === 0) {
+      el.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📭</div><div>কোনো প্রম্পট নেই</div></div>`;
+      return;
+    }
+
+    // category অনুযায়ী গ্রুপ করা (accordion)
+    const groups = {};
+    state.ai.prompts.forEach(p => {
+      const key = p.category || 'অন্যান্য';
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(p);
+    });
+
+    el.innerHTML = Object.keys(groups).sort().map(cat => {
+      const items = groups[cat].map((p, idx) => {
+        const preview = p.text.length > 140 ? escapeHtml(p.text).slice(0,140) + '…' : escapeHtml(p.text);
+        return `<div class="ai-question-list-item home-prompt-item" style="cursor:pointer;flex-direction:column;align-items:stretch;gap:8px" onclick="APP.homeTogglePromptText(event,'${p.id}')">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+            <div style="flex:1;min-width:0">
+              <div style="font-size:11px;color:var(--text3);margin-bottom:3px">প্রম্পট ${idx+1}${p.source==='sheet'?' · 📄 Sheet':''}</div>
+              <div class="home-prompt-text" style="font-size:13px;color:var(--text2);white-space:pre-wrap">${preview}</div>
+            </div>
+            <button class="btn btn-icon btn-secondary btn-sm" style="flex-shrink:0" onclick="event.stopPropagation();APP.homeCopyPrompt('${p.id}')" title="কপি করুন">📋</button>
+          </div>
+        </div>`;
+      }).join('');
+      return `<div style="margin-bottom:10px">
+        <button class="btn btn-secondary btn-full" style="justify-content:space-between;display:flex;align-items:center" onclick="APP.homeTogglePromptCategory(this)">
+          <span>${escapeHtml(cat)} (${groups[cat].length})</span>
+          <span class="home-cat-arrow">▼</span>
+        </button>
+        <div class="home-cat-body" style="margin-top:8px;display:none">${items}</div>
+      </div>`;
+    }).join('');
+  }
+
+  function homeTogglePromptCategory(btn) {
+    const body = btn.parentElement.querySelector('.home-cat-body');
+    const arrow = btn.querySelector('.home-cat-arrow');
+    if (!body) return;
+    const isOpen = body.style.display !== 'none';
+    body.style.display = isOpen ? 'none' : 'block';
+    if (arrow) arrow.textContent = isOpen ? '▼' : '▲';
+  }
+
+  // প্রম্পট আইটেমে ক্লিক করলে ফুল টেক্সট expand/collapse হবে
+  function homeTogglePromptText(evt, id) {
+    const item = evt.currentTarget;
+    const textEl = item.querySelector('.home-prompt-text');
+    const p = state.ai.prompts.find(x => x.id === id);
+    if (!textEl || !p) return;
+    const isExpanded = item.classList.contains('home-prompt-expanded');
+    if (isExpanded) {
+      textEl.textContent = p.text.length > 140 ? p.text.slice(0,140) + '…' : p.text;
+      item.classList.remove('home-prompt-expanded');
+    } else {
+      textEl.textContent = p.text;
+      item.classList.add('home-prompt-expanded');
+    }
+  }
+
+  function homeCopyPrompt(id) {
+    const p = state.ai.prompts.find(x => x.id === id);
+    if (!p) { toast('❌ প্রম্পট পাওয়া যায়নি'); return; }
+    copyTextToClipboard(p.text).then(ok => toast(ok ? '✅ ক্লিপবোর্ডে কপি হয়েছে' : '❌ কপি ব্যর্থ'));
+  }
+
+  // ─── HOME SCREEN: সাপ্তাহিক ROUTINE ───
+  const ROUTINE_DAYS = [
+    { key: 'sat', label: 'শনি', fullLabel: 'শনিবার' },
+    { key: 'sun', label: 'রবি', fullLabel: 'রবিবার' },
+    { key: 'mon', label: 'সোম', fullLabel: 'সোমবার' },
+    { key: 'tue', label: 'মঙ্গল', fullLabel: 'মঙ্গলবার' },
+    { key: 'wed', label: 'বুধ', fullLabel: 'বুধবার' },
+    { key: 'thu', label: 'বৃহস্পতি', fullLabel: 'বৃহস্পতিবার' },
+    { key: 'fri', label: 'শুক্র', fullLabel: 'শুক্রবার' },
+  ];
+  let homeRoutineActiveDay = 'sat';
+
+  function loadHomeRoutine() {
+    const saved = ls_get(STORAGE_KEYS.homeRoutine);
+    state.routine = (saved && typeof saved === 'object') ? saved : {};
+  }
+
+  function saveHomeRoutine() {
+    ls_set(STORAGE_KEYS.homeRoutine, state.routine);
+    homeRoutineDiaryPush();
+  }
+
+  // ROUTINE বাটনে ক্লিক করলে সরাসরি "সব" (সম্পূর্ণ রুটিন) ভিউ দেখাবে —
+  // "সব" পিলটি শনি-এর আগে থাকবে, এবং যেকোনো দিন পিলে ক্লিক করলে সেই দিনের সাবজেক্ট এডিট করা যাবে
+  let homeRoutineViewMode = 'all'; // 'all' | 'day'
+
+  function openHomeRoutineModal() {
+    homeRoutineViewMode = 'all';
+    renderHomeRoutineDayPills();
+    renderHomeRoutineViewTable();
+    renderHomeRoutineSubjectList();
+    homeRoutineUpdateModeUI();
+    $('home-routine-modal-overlay').classList.remove('hidden');
+  }
+
+  function closeHomeRoutineModal() {
+    $('home-routine-modal-overlay').classList.add('hidden');
+  }
+
+  function homeRoutineUpdateModeUI() {
+    const viewWrap = $('home-routine-view-wrap');
+    const editWrap = $('home-routine-edit-wrap');
+    if (!viewWrap || !editWrap) return;
+    if (homeRoutineViewMode === 'all') {
+      viewWrap.classList.remove('hidden');
+      editWrap.classList.add('hidden');
+    } else {
+      viewWrap.classList.add('hidden');
+      editWrap.classList.remove('hidden');
+    }
+  }
+
+  function homeShowRoutineAll() {
+    homeRoutineViewMode = 'all';
+    renderHomeRoutineDayPills();
+    renderHomeRoutineViewTable();
+    homeRoutineUpdateModeUI();
+  }
+
+  function renderHomeRoutineDayPills() {
+    const el = $('home-routine-day-pills');
+    if (!el) return;
+    const allPill = `<button class="mode-pill${homeRoutineViewMode === 'all' ? ' selected' : ''}" onclick="APP.homeShowRoutineAll()">📊 সব</button>`;
+    const dayPills = ROUTINE_DAYS.map(d =>
+      `<button class="mode-pill${(homeRoutineViewMode === 'day' && d.key === homeRoutineActiveDay) ? ' selected' : ''}" onclick="APP.homeSelectRoutineDay('${d.key}')">${d.label}</button>`
+    ).join('');
+    el.innerHTML = allPill + dayPills;
+  }
+
+  function homeSelectRoutineDay(key) {
+    homeRoutineViewMode = 'day';
+    homeRoutineActiveDay = key;
+    renderHomeRoutineDayPills();
+    renderHomeRoutineSubjectList();
+    homeRoutineUpdateModeUI();
+  }
+
+  function renderHomeRoutineSubjectList() {
+    const el = $('home-routine-subject-list');
+    if (!el) return;
+    const list = state.routine[homeRoutineActiveDay] || [];
+    if (list.length === 0) {
+      el.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📭</div><div>কোনো সাবজেক্ট যোগ করা হয়নি</div></div>`;
+      return;
+    }
+    el.innerHTML = list.map((subj, idx) => `
+      <div class="ai-question-list-item">
+        <div style="flex:1;min-width:0;font-size:14px;color:var(--text)">${escapeHtml(subj)}</div>
+        <button class="btn btn-icon btn-secondary btn-sm" onclick="APP.homeEditRoutineSubject(${idx})">✏️</button>
+        <button class="btn btn-icon btn-secondary btn-sm" onclick="APP.homeDeleteRoutineSubject(${idx})">🗑️</button>
+      </div>
+    `).join('');
+  }
+
+  function homeEditRoutineSubject(idx) {
+    const list = state.routine[homeRoutineActiveDay] || [];
+    const current = list[idx];
+    if (current === undefined) return;
+    const updated = prompt('সাবজেক্টের নাম এডিট করুন', current);
+    if (updated === null) return; // বাতিল করা হয়েছে
+    const trimmed = updated.trim();
+    if (!trimmed) { toast('❌ সাবজেক্টের নাম খালি রাখা যাবে না'); return; }
+    list[idx] = trimmed;
+    state.routine[homeRoutineActiveDay] = list;
+    saveHomeRoutine();
+    renderHomeRoutineSubjectList();
+    renderHomeRoutineViewTable();
+    toast('✅ আপডেট করা হয়েছে');
+  }
+
+  function homeAddRoutineSubject() {
+    const input = $('home-routine-subject-input');
+    const val = input && input.value.trim();
+    if (!val) { toast('❌ সাবজেক্টের নাম লিখুন'); return; }
+    if (!state.routine[homeRoutineActiveDay]) state.routine[homeRoutineActiveDay] = [];
+    state.routine[homeRoutineActiveDay].push(val);
+    saveHomeRoutine();
+    input.value = '';
+    renderHomeRoutineSubjectList();
+    renderHomeRoutineViewTable();
+    toast('✅ যোগ করা হয়েছে');
+  }
+
+  function homeDeleteRoutineSubject(idx) {
+    const list = state.routine[homeRoutineActiveDay] || [];
+    list.splice(idx, 1);
+    state.routine[homeRoutineActiveDay] = list;
+    saveHomeRoutine();
+    renderHomeRoutineSubjectList();
+    renderHomeRoutineViewTable();
+  }
+
+  // ─── HOME SCREEN: ROUTINE VIEW (Screenshot-style Full Table, শনি → শুক্র) ───
+  function renderHomeRoutineViewTable() {
+    const el = $('home-routine-view-table');
+    if (!el) return;
+
+    // শনি থেকে শুক্র প্রতিটি দিনের সেভ করা সাবজেক্ট লিস্ট (existing state.routine থেকে, read-only)
+    const dayLists = ROUTINE_DAYS.map(d => state.routine[d.key] || []);
+    const maxRows = Math.max(0, ...dayLists.map(list => list.length));
+
+    if (maxRows === 0) {
+      el.innerHTML = `<div class="rv-empty-wrap"><div style="font-size:32px;margin-bottom:6px">📭</div>কোনো সাবজেক্ট এখনো যোগ করা হয়নি</div>`;
+      return;
+    }
+
+    // আজকে কোন দিন (sat/sun/mon...) সেটা বের করে ওই কলামের হেডারে "আজকে ___বার" লেবেল দেখানো হবে
+    const todayKey = homeDateToRoutineDayKey(homeTodayDateStr());
+
+    const headerCells = ROUTINE_DAYS.map((d, i) => {
+      const isToday = d.key === todayKey;
+      const label = isToday ? `⭐ আজকে ${escapeHtml(d.label)}` : escapeHtml(d.label);
+      return `<th class="rv-th ${isToday ? 'rv-today' : (i % 2 === 0 ? 'rv-navy' : 'rv-brown')}">${label}</th>`;
+    }).join('');
+
+    let bodyRows = '';
+    for (let r = 0; r < maxRows; r++) {
+      const cells = dayLists.map((list, i) => {
+        const subj = list[r];
+        const todayClass = ROUTINE_DAYS[i].key === todayKey ? ' rv-today' : '';
+        return subj
+          ? `<td class="rv-td${todayClass}">${escapeHtml(subj)}</td>`
+          : `<td class="rv-td empty${todayClass}">—</td>`;
+      }).join('');
+      bodyRows += `<tr>${cells}</tr>`;
+    }
+
+    el.innerHTML = `
+      <table class="rv-table">
+        <thead><tr>${headerCells}</tr></thead>
+        <tbody>${bodyRows}</tbody>
+      </table>
+    `;
+  }
+
+  // ─── HOME SCREEN: দৈনিক DIARY ───
+  // Date object toString() থেকে আসা "Thu Jan 01 1970 00:00:00 GMT+0600 (Bangladesh Standard Time)"
+  // এই ধরনের key কে "YYYY-MM-DD" ফরম্যাটে normalize করার হেল্পার (ডেটা বাদ না দিয়ে)
+  function homeNormalizeDiaryDateKey(key) {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(key)) return key;
+    const d = new Date(key);
+    if (isNaN(d.getTime())) return null;
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
+  function homeNormalizeDiaryObject(raw) {
+    const out = {};
+    if (!raw || typeof raw !== 'object') return out;
+    Object.keys(raw).forEach(key => {
+      const cleanKey = homeNormalizeDiaryDateKey(key);
+      if (cleanKey) out[cleanKey] = raw[key];
+    });
+    return out;
+  }
+
+  function loadHomeDiary() {
+    const saved = ls_get(STORAGE_KEYS.homeDiary);
+    const raw = (saved && typeof saved === 'object') ? saved : {};
+    // পুরনো bug-এর কারণে যেসব key "YYYY-MM-DD" ফরম্যাটে নেই (যেমন Date object এর
+    // toString() থেকে তৈরি হওয়া আজব key), সেগুলো বাদ দিয়ে state.diary বানানো হচ্ছে
+    const dateKeyPattern = /^\d{4}-\d{2}-\d{2}$/;
+    let removedAny = false;
+    state.diary = {};
+    Object.keys(raw).forEach(key => {
+      if (dateKeyPattern.test(key)) {
+        state.diary[key] = raw[key];
+      } else {
+        removedAny = true;
+      }
+    });
+    if (removedAny) saveHomeDiary();
+  }
+
+  function saveHomeDiary() {
+    ls_set(STORAGE_KEYS.homeDiary, state.diary);
+    homeRoutineDiaryPush();
+  }
+
+  function homeTodayDateStr() {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
+  // তারিখ থেকে রুটিনের সপ্তাহের দিন (sat/sun/mon...) বের করা
+  function homeDateToRoutineDayKey(dateStr) {
+    const d = new Date(dateStr + 'T00:00:00');
+    const map = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+    return map[d.getDay()];
+  }
+
+  // HOME স্ক্রিনে ডায়েরি লেবেলের পাশে + header এর top-right এ আজকের বার ও তারিখ দেখানো
+  function renderHomeDiaryToday() {
+    const dayKey = homeDateToRoutineDayKey(homeTodayDateStr());
+    const dayInfo = ROUTINE_DAYS.find(x => x.key === dayKey);
+    const barName = dayInfo ? dayInfo.fullLabel : '';
+    const dateStr = new Date().toLocaleDateString('bn-BD', { day: '2-digit', month: 'long', year: 'numeric' });
+    const text = `${barName}, ${dateStr}`;
+    ['home-diary-today', 'home-header-today'].forEach(id => {
+      const el = $(id);
+      if (el) el.textContent = text;
+    });
+  }
+
+  // তারিখ থেকে দিনের বাংলা নাম (শনি/রবি/সোম...) বের করা
+  function homeDiaryDayLabel(dateStr) {
+    const dayKey = homeDateToRoutineDayKey(dateStr);
+    const found = ROUTINE_DAYS.find(d => d.key === dayKey);
+    return found ? found.label : '';
+  }
+
+  // নির্দিষ্ট তারিখের ডায়েরি এন্ট্রি রুটিনের সাবজেক্টের সাথে sync করা —
+  // routine-এ নতুন সাবজেক্ট যোগ হলে auto-add হবে, কিন্তু আগে delete করা সাবজেক্ট আবার ফিরে আসবে না
+  function homeEnsureDiaryEntry(dateStr) {
+    const dayKey = homeDateToRoutineDayKey(dateStr);
+    const routineSubjects = state.routine[dayKey] || [];
+    if (!state.diary[dateStr]) {
+      state.diary[dateStr] = { subjects: routineSubjects.slice(), lessons: {}, removed: [] };
+      saveHomeDiary();
+    } else {
+      const entry = state.diary[dateStr];
+      if (!entry.removed) entry.removed = [];
+      let changed = false;
+      routineSubjects.forEach(subj => {
+        if (!entry.subjects.includes(subj) && !entry.removed.includes(subj)) {
+          entry.subjects.push(subj);
+          changed = true;
+        }
+      });
+      if (changed) saveHomeDiary();
+    }
+    return state.diary[dateStr];
+  }
+
+  function openHomeDiaryModal() {
+    const dateInput = $('home-diary-date');
+    if (dateInput && !dateInput.value) dateInput.value = homeTodayDateStr();
+    homeDiaryShowOverview();
+    $('home-diary-modal-overlay').classList.remove('hidden');
+  }
+
+  function closeHomeDiaryModal() {
+    $('home-diary-modal-overlay').classList.add('hidden');
+  }
+
+  // সাম্প্রতিক দিনগুলোর সব ডায়েরি এক সাথে দেখানোর Overview পেজ
+  function homeDiaryShowOverview() {
+    renderHomeDiaryOverview();
+    const overviewView = $('home-diary-overview-view');
+    const editorView = $('home-diary-editor-view');
+    if (overviewView) overviewView.classList.remove('hidden');
+    if (editorView) editorView.classList.add('hidden');
+  }
+
+  function renderHomeDiaryOverview() {
+    const el = $('home-diary-overview-list');
+    if (!el) return;
+    const dates = Object.keys(state.diary).sort((a, b) => b.localeCompare(a));
+    // যেসব date-এ কোনো সাবজেক্টে lesson লেখা নেই, সেই date-টাই লিস্ট থেকে বাদ যাবে
+    const datesWithLesson = dates.filter(dateStr => {
+      const entry = state.diary[dateStr] || { subjects: [], lessons: {} };
+      const subjects = entry.subjects || [];
+      return subjects.some(subj => ((entry.lessons && entry.lessons[subj]) || '').trim() !== '');
+    });
+    if (datesWithLesson.length === 0) {
+      el.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📭</div><div>এখনো কোনো ডায়েরি এন্ট্রি নেই</div></div>`;
+      return;
+    }
+    el.innerHTML = datesWithLesson.map(dateStr => {
+      const entry = state.diary[dateStr] || { subjects: [], lessons: {} };
+      const subjects = entry.subjects || [];
+      // শুধু সেই সাবজেক্টগুলোই দেখানো হবে যেগুলোতে lesson লেখা আছে
+      const subjectsWithLesson = subjects.filter(subj => ((entry.lessons && entry.lessons[subj]) || '').trim() !== '');
+      const bodyHtml = `
+      <table class="home-diary-overview-table">
+        <thead><tr><th>Subject</th><th>Topics</th></tr></thead>
+        <tbody>
+          ${subjectsWithLesson.map(subj => {
+            const lesson = (entry.lessons && entry.lessons[subj]) || '';
+            return `<tr><td class="home-diary-overview-subject-cell">${escapeHtml(subj)}</td><td>${escapeHtml(lesson)}</td></tr>`;
+          }).join('')}
+        </tbody>
+      </table>`;
+      return `
+      <div class="home-diary-overview-card" onclick="APP.homeDiaryOpenEntry('${dateStr}')">
+        <div class="home-diary-overview-date"><span>📅 ${dateStr} (${homeDiaryDayLabel(dateStr)})</span><span>✏️</span></div>
+        ${bodyHtml}
+      </div>`;
+    }).join('');
+  }
+
+  function homeDiaryOpenEntry(dateStr) {
+    const dateInput = $('home-diary-date');
+    if (dateInput) dateInput.value = dateStr;
+    homeEnsureDiaryEntry(dateStr);
+    renderHomeDiarySubjectList();
+    const overviewView = $('home-diary-overview-view');
+    const editorView = $('home-diary-editor-view');
+    if (overviewView) overviewView.classList.add('hidden');
+    if (editorView) editorView.classList.remove('hidden');
+  }
+
+  function homeDiaryNewEntry() {
+    homeDiaryOpenEntry(homeTodayDateStr());
+  }
+
+  function homeDiaryDateChange() {
+    const dateStr = $('home-diary-date').value;
+    if (!dateStr) return;
+    homeEnsureDiaryEntry(dateStr);
+    renderHomeDiarySubjectList();
+  }
+
+  function homeDiaryShiftDate(delta) {
+    const dateInput = $('home-diary-date');
+    if (!dateInput || !dateInput.value) return;
+    const d = new Date(dateInput.value + 'T00:00:00');
+    d.setDate(d.getDate() + delta);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    dateInput.value = `${y}-${m}-${day}`;
+    homeDiaryDateChange();
+  }
+
+  function renderHomeDiarySubjectList() {
+    const el = $('home-diary-subject-list');
+    const dateInput = $('home-diary-date');
+    if (!el || !dateInput) return;
+    const dateStr = dateInput.value;
+    const entry = state.diary[dateStr];
+    const subjects = entry ? entry.subjects : [];
+    if (subjects.length === 0) {
+      el.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📭</div><div>এই দিনের জন্য কোনো সাবজেক্ট নেই</div></div>`;
+      return;
+    }
+    el.innerHTML = subjects.map((subj, idx) => {
+      const lesson = (entry.lessons && entry.lessons[subj]) || '';
+      return `
+      <div class="fb-section">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <div class="home-diary-subject-label" style="margin-bottom:0">${escapeHtml(subj)}</div>
+          <button class="btn btn-icon btn-secondary btn-sm" onclick="APP.homeDiaryRemoveSubject(${idx})">🗑️</button>
+        </div>
+        <textarea class="textarea-field" style="min-height:70px" placeholder="আজকের লেসন লিখুন..." oninput="APP.homeDiarySaveLesson(${idx}, this.value)">${escapeHtml(lesson)}</textarea>
+      </div>`;
+    }).join('');
+  }
+
+  function homeDiaryAddSubject() {
+    const dateStr = $('home-diary-date').value;
+    if (!dateStr) { toast('❌ তারিখ নির্বাচন করুন'); return; }
+    const entry = homeEnsureDiaryEntry(dateStr);
+    const input = $('home-diary-subject-input');
+    const val = input && input.value.trim();
+    if (!val) { toast('❌ সাবজেক্টের নাম লিখুন'); return; }
+    entry.subjects.push(val);
+    saveHomeDiary();
+    input.value = '';
+    renderHomeDiarySubjectList();
+    toast('✅ যোগ করা হয়েছে');
+  }
+
+  function homeDiaryRemoveSubject(idx) {
+    const dateStr = $('home-diary-date').value;
+    const entry = state.diary[dateStr];
+    if (!entry) return;
+    const subj = entry.subjects[idx];
+    entry.subjects.splice(idx, 1);
+    if (entry.lessons) delete entry.lessons[subj];
+    if (!entry.removed) entry.removed = [];
+    if (!entry.removed.includes(subj)) entry.removed.push(subj);
+    saveHomeDiary();
+    renderHomeDiarySubjectList();
+  }
+
+  function homeDiarySaveLesson(idx, value) {
+    const dateStr = $('home-diary-date').value;
+    const entry = state.diary[dateStr];
+    if (!entry) return;
+    const subj = entry.subjects[idx];
+    if (!entry.lessons) entry.lessons = {};
+    entry.lessons[subj] = value;
+    saveHomeDiary();
+  }
+
+  // ─── HOME: ROUTINE & DIARY ↔ GOOGLE SHEET SYNC ───
+  // App-এ কিছু লিখলেই (routine/diary) auto-push হয় Sheet-এর "ROUTINE & DIARY" Tab-এ (একই AI Test
+  // Apps Script URL ব্যবহার করে — নতুন URL ফিল্ডের দরকার নেই)। App-এর ডেটা খালি থাকলে Settings-এর
+  // SYNC বাটন চেপে Sheet থেকে সব ফিরিয়ে আনা যায়।
+  let rdPushTimer = null;
+
+  function homeRoutineDiaryPush() {
+    const url = state.ai.checkerUrl || localStorage.getItem(STORAGE_KEYS.aiCheckerUrl);
+    if (!url) return; // URL সেট না থাকলে silently কিছুই হবে না, existing local-storage flow অক্ষত থাকবে
+    clearTimeout(rdPushTimer);
+    rdPushTimer = setTimeout(() => {
+      fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'saveRoutineDiary', routine: state.routine, diary: state.diary }),
+      })
+        .then(r => r.json())
+        .then(data => {
+          if (data && !data.error) {
+            localStorage.setItem(STORAGE_KEYS.rdLastSync, Date.now().toString());
+            rdUpdateSyncStatusUI();
+          }
+        })
+        .catch(() => { /* auto-push silently ব্যর্থ হলেও local ডেটা অক্ষত থাকে */ });
+    }, 1200);
+  }
+
+  function rdUpdateSyncStatusUI(msg) {
+    const el = $('rd-sync-status');
+    if (!el) return;
+    if (msg) { el.textContent = msg; return; }
+    const last = localStorage.getItem(STORAGE_KEYS.rdLastSync);
+    el.textContent = last ? `সর্বশেষ সিঙ্ক: ${new Date(parseInt(last)).toLocaleString('bn-BD')}` : 'এখনো সিঙ্ক করা হয়নি';
+  }
+
+  function homeSyncRoutineDiaryFromSheet() {
+    const url = state.ai.checkerUrl || localStorage.getItem(STORAGE_KEYS.aiCheckerUrl);
+    if (!url) { toast('❌ প্রথমে সেটিংসে "AI Test Apps Script URL" দিয়ে সংরক্ষণ করুন'); return; }
+    const btn = $('btn-rd-sync');
+    if (btn) { btn.disabled = true; btn.textContent = '⏳'; }
+    rdUpdateSyncStatusUI('⏳ Sheet থেকে Routine & Diary আনা হচ্ছে...');
+
+    const sep = url.includes('?') ? '&' : '?';
+    fetch(url + sep + 'action=getRoutineDiary&t=' + Date.now())
+      .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(data => {
+        if (!data || data.error) throw new Error(data && data.error || 'ভুল ফরম্যাট');
+        state.routine = data.routine || {};
+        state.diary = homeNormalizeDiaryObject(data.diary || {});
+        ls_set(STORAGE_KEYS.homeRoutine, state.routine);
+        ls_set(STORAGE_KEYS.homeDiary, state.diary);
+        localStorage.setItem(STORAGE_KEYS.rdLastSync, Date.now().toString());
+        toast('✅ Routine & Diary সিঙ্ক সম্পন্ন হয়েছে');
+        rdUpdateSyncStatusUI();
+        // মডাল খোলা থাকলে সাথে সাথে UI আপডেট হবে
+        renderHomeRoutineDayPills();
+        renderHomeRoutineSubjectList();
+        const diaryDateInput = $('home-diary-date');
+        if (diaryDateInput && diaryDateInput.value) {
+          homeEnsureDiaryEntry(diaryDateInput.value);
+          renderHomeDiarySubjectList();
+        }
+      })
+      .catch(err => {
+        toast('❌ সিঙ্ক ব্যর্থ: ' + err.message);
+        rdUpdateSyncStatusUI('❌ সিঙ্ক ব্যর্থ হয়েছে — আগের ডেটা অপরিবর্তিত আছে');
+      })
+      .finally(() => {
+        if (btn) { btn.disabled = false; btn.textContent = '🔄 SYNC'; }
+      });
+  }
+
   // ─── AI PROVIDER CONFIG ───
   function aiProviderFieldsToggle() {
     const sel = $('ai-provider-select');
@@ -3945,6 +4749,7 @@ const APP = (() => {
     toggleSetting, prevQuestion, nextQuestion,
     toggleQNav, confirmSubmit,
     verifyPin, pinForgot, savePin,
+    saveDriveLink, openDriveLink,
     retryWrong, retryAll, newAttempt,
     clearHistory, exportHistory, exportResult,
     clearHistoryActive, exportHistoryActive, aiExportHistory, aiClearHistory,
@@ -3968,6 +4773,12 @@ const APP = (() => {
     // MCQ AI module
     mcqAiOpenPromptModal, mcqAiClosePromptModal, mcqAiAddPrompt, mcqAiDeletePrompt, mcqAiSelectPrompt, mcqAiTogglePromptCategory,
     mcqAiSetExamMode, mcqAiSetAnswerMode, mcqAiHandleImageSelect, mcqAiShareToApps, mcqAiCopyPromptAgain,
+    // HOME module
+    openHomePromptModal, closeHomePromptModal, homeTogglePromptCategory, homeTogglePromptText, homeCopyPrompt,
+    openHomeRoutineModal, closeHomeRoutineModal, homeSelectRoutineDay, homeShowRoutineAll, homeAddRoutineSubject, homeEditRoutineSubject, homeDeleteRoutineSubject,
+    openHomeDiaryModal, closeHomeDiaryModal, homeDiaryDateChange, homeDiaryShiftDate, homeDiaryAddSubject, homeDiaryRemoveSubject, homeDiarySaveLesson,
+    homeDiaryShowOverview, homeDiaryOpenEntry, homeDiaryNewEntry,
+    homeSyncRoutineDiaryFromSheet,
   };
 })();
 
