@@ -543,6 +543,19 @@ body.has-nav .screen{padding-bottom:76px}
 .img-upload-box:active{transform:scale(.99)}
 .img-upload-box.has-img{border-style:solid;border-color:var(--accent);padding:8px}
 .img-preview{width:100%;max-height:320px;object-fit:contain;border-radius:8px;display:block}
+.img-thumb-grid{display:flex;flex-wrap:wrap;gap:8px}
+.img-thumb{position:relative;width:84px;height:84px;border-radius:8px;overflow:hidden;flex-shrink:0}
+.img-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.img-thumb-remove{
+  position:absolute;top:2px;right:2px;width:20px;height:20px;border-radius:50%;
+  background:rgba(0,0,0,.65);color:#fff;font-size:13px;line-height:20px;text-align:center;
+  cursor:pointer;font-weight:700;
+}
+.img-thumb-add{
+  width:84px;height:84px;border-radius:8px;border:2px dashed var(--border);
+  display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--text2);
+  cursor:pointer;flex-shrink:0;
+}
 .ai-q-card{
   background:var(--surface);border:1px solid var(--border);
   border-radius:var(--radius);padding:16px;margin-bottom:14px;
@@ -850,6 +863,7 @@ body.has-nav .screen{padding-bottom:76px}
   <div class="app-header">
     <div><div class="app-title">পরীক্ষার ইতিহাস</div></div>
     <div class="flex gap-2">
+      <button class="btn btn-secondary btn-sm hidden" id="btn-history-ai-share" onclick="APP.aiShareHistoryToApps()">📋</button>
       <button class="btn btn-secondary btn-sm" id="btn-history-export" onclick="APP.exportHistoryActive()">📤</button>
       <button class="btn btn-danger btn-sm" id="btn-history-clear" onclick="APP.clearHistoryActive()">🗑</button>
     </div>
@@ -953,6 +967,30 @@ body.has-nav .screen{padding-bottom:76px}
       </div>
       <button class="btn btn-success btn-sm btn-full" id="btn-rd-sync" onclick="APP.homeSyncRoutineDiaryFromSheet()">🔄 SYNC</button>
       <div class="toggle-sub" id="rd-sync-status">এখনো সিঙ্ক করা হয়নি</div>
+    </div>
+  </div>
+
+  <div class="section-label">AI টেস্ট — পরীক্ষার ইতিহাস সিঙ্ক</div>
+  <div class="settings-group">
+    <div class="toggle-row" style="flex-direction:column;align-items:stretch;gap:8px;padding:14px 0">
+      <div>
+        <div class="toggle-label">Sheet ↔ App সিঙ্ক ("EXAM RESULT" ট্যাব)</div>
+        <div class="toggle-sub">উপরের "AI Test Apps Script URL" ব্যবহার হয়। AI টেস্ট দেওয়ার সাথে সাথে (বা ইতিহাস মুছলে/নম্বর এডিট করলে) App → Sheet auto-sync হয়। App-এর ইতিহাস খালি থাকলে Sheet থেকে আনতে নিচের বাটন চাপুন।</div>
+      </div>
+      <button class="btn btn-success btn-sm btn-full" id="btn-exam-sync" onclick="APP.aiSyncExamHistoryFromSheet()">🔄 SYNC</button>
+      <div class="toggle-sub" id="exam-sync-status">এখনো সিঙ্ক করা হয়নি</div>
+    </div>
+  </div>
+
+  <div class="section-label">📝 MCQ — পরীক্ষার ইতিহাস সিঙ্ক</div>
+  <div class="settings-group">
+    <div class="toggle-row" style="flex-direction:column;align-items:stretch;gap:8px;padding:14px 0">
+      <div>
+        <div class="toggle-label">Sheet ↔ App সিঙ্ক ("MCQ RESULT" ট্যাব)</div>
+        <div class="toggle-sub">উপরের "AI Test Apps Script URL" ব্যবহার হয়। MCQ পরীক্ষা দেওয়ার সাথে সাথে (বা ইতিহাস মুছলে) App → Sheet auto-sync হয়। App-এর ইতিহাস খালি থাকলে Sheet থেকে আনতে নিচের বাটন চাপুন।</div>
+      </div>
+      <button class="btn btn-success btn-sm btn-full" id="btn-mcq-hist-sync" onclick="APP.mcqSyncHistoryFromSheet()">🔄 SYNC</button>
+      <div class="toggle-sub" id="mcq-hist-sync-status">এখনো সিঙ্ক করা হয়নি</div>
     </div>
   </div>
 
@@ -1116,7 +1154,7 @@ body.has-nav .screen{padding-bottom:76px}
   </div>
 
   <div id="ai-answer-image-wrap">
-    <input type="file" id="ai-image-input" accept="image/*" class="hidden" onchange="APP.aiHandleImageSelect(event)">
+    <input type="file" id="ai-image-input" accept="image/*" multiple class="hidden" onchange="APP.aiHandleImageSelect(event)">
     <div class="img-upload-box" id="ai-img-upload-box" onclick="document.getElementById('ai-image-input').click()">
       <div style="font-size:32px;margin-bottom:6px">📷</div>
       UPLOAD PHOTO
@@ -1199,7 +1237,7 @@ body.has-nav .screen{padding-bottom:76px}
   </div>
 
   <div id="mcq-ai-answer-image-wrap">
-    <input type="file" id="mcq-ai-image-input" accept="image/*" class="hidden" onchange="APP.mcqAiHandleImageSelect(event)">
+    <input type="file" id="mcq-ai-image-input" accept="image/*" multiple class="hidden" onchange="APP.mcqAiHandleImageSelect(event)">
     <div class="img-upload-box" id="mcq-ai-img-upload-box" onclick="document.getElementById('mcq-ai-image-input').click()">
       <div style="font-size:32px;margin-bottom:6px">📷</div>
       UPLOAD PHOTO
@@ -1348,7 +1386,7 @@ body.has-nav .screen{padding-bottom:76px}
     <div id="home-diary-overview-view">
       <div id="home-diary-today" style="font-weight:700;font-size:13px;color:var(--text2);margin-bottom:10px;text-align:center"></div>
       <div class="flex gap-2" style="margin-bottom:12px">
-        <button class="btn btn-primary btn-full" onclick="APP.homeDiaryNewEntry()">✏️ নতুন / আজকের এন্ট্রি</button>
+        <button class="btn btn-primary btn-full" onclick="APP.homeDiaryNewEntry()">✏️আজকের ডায়েরি লিখ</button>
       </div>
       <div id="home-diary-overview-list" style="margin-bottom:14px;max-height:55vh;overflow-y:auto"></div>
       <button class="btn btn-secondary btn-full" onclick="APP.closeHomeDiaryModal()">বন্ধ করুন</button>
@@ -1362,6 +1400,7 @@ body.has-nav .screen{padding-bottom:76px}
         <button class="btn btn-icon btn-secondary" onclick="APP.homeDiaryShiftDate(1)" title="পরের দিন">▶</button>
       </div>
       <div class="flex gap-2" style="margin-bottom:12px">
+        <button class="btn btn-secondary" style="flex-shrink:0" onclick="APP.homeDiaryOpenSubjectPicker()">📋 SUBJECT LIST</button>
         <input id="home-diary-subject-input" type="text" class="input-field" placeholder="নতুন সাবজেক্ট যোগ করুন" style="margin-bottom:0" onkeydown="if(event.key==='Enter'){APP.homeDiaryAddSubject()}">
         <button class="btn btn-primary" style="flex-shrink:0" onclick="APP.homeDiaryAddSubject()">+ যোগ</button>
       </div>
@@ -1369,6 +1408,15 @@ body.has-nav .screen{padding-bottom:76px}
       <button class="btn btn-secondary btn-full" style="margin-bottom:8px" onclick="APP.homeDiaryShowOverview()">◀ সব দিনের ডায়েরি</button>
       <button class="btn btn-secondary btn-full home-diary-close-fixed" onclick="APP.closeHomeDiaryModal()">বন্ধ করুন</button>
     </div>
+  </div>
+</div>
+
+<!-- Home: DIARY Subject Picker Modal (আগে সেভ করা সব সাবজেক্টের লিস্ট) -->
+<div class="modal-overlay hidden" id="home-diary-subject-picker-overlay">
+  <div class="modal-box">
+    <div class="modal-title">📋 সাবজেক্ট লিস্ট</div>
+    <div id="home-diary-subject-picker-list" style="margin-bottom:14px;max-height:60vh;overflow-y:auto"></div>
+    <button class="btn btn-secondary btn-full" onclick="APP.homeDiaryCloseSubjectPicker()">বন্ধ করুন</button>
   </div>
 </div>
 
@@ -1484,6 +1532,22 @@ body.has-nav .screen{padding-bottom:76px}
   </div>
 </div>
 
+<!-- AI Remark/Comment Edit Modal -->
+<div class="modal-overlay hidden" id="ai-remark-edit-overlay">
+  <div class="modal-box">
+    <div class="modal-title">💬 মন্তব্য লিখুন</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:14px" id="ai-remark-edit-info"></div>
+    <div style="margin-bottom:16px">
+      <label class="section-label">মন্তব্য</label>
+      <textarea id="ai-remark-edit-input" class="input-field" rows="5" style="resize:vertical" placeholder="এখানে মন্তব্য লিখুন..."></textarea>
+    </div>
+    <div class="flex gap-3">
+      <button class="btn btn-secondary" style="flex:1" onclick="APP.aiCloseRemarkEdit()">বাতিল</button>
+      <button class="btn btn-primary" style="flex:1" onclick="APP.aiSaveRemarkEdit()">✅ সংরক্ষণ</button>
+    </div>
+  </div>
+</div>
+
 <!-- MCQ AI Prompt Modal -->
 <div class="modal-overlay hidden" id="mcq-ai-prompt-modal-overlay">
   <div class="modal-box">
@@ -1533,6 +1597,8 @@ const APP = (() => {
     homeRoutine:  'home_routine',
     homeDiary:    'home_diary',
     rdLastSync:   'rd_last_sync',
+    examLastSync: 'exam_last_sync',
+    mcqHistLastSync: 'mcq_hist_last_sync',
   };
   const DEFAULT_PIN = '1234';
 
@@ -1587,7 +1653,8 @@ const APP = (() => {
       // answer
       currentQuestion: null,
       answerMode: 'image',
-      imageDataUrl: null,
+      imageDataUrl: null,       // AI Checker submit-এর জন্য প্রথম ছবি (backward-compat)
+      imageDataUrls: [],        // Share to AI App-এর জন্য একাধিক ছবি
       submitting: false,
       history: [],
       // prompts
@@ -2068,6 +2135,7 @@ const APP = (() => {
     const history = ls_get(STORAGE_KEYS.history) || [];
     history.unshift(result);
     ls_set(STORAGE_KEYS.history, history);
+    mcqHistoryPush();
 
     state.currentResult = result;
     state.resultUnlocked = false;
@@ -2288,6 +2356,8 @@ const APP = (() => {
     document.getElementById('htab-ai').classList.toggle('active', tab === 'ai');
     document.getElementById('history-tab-mcq').classList.toggle('hidden', tab !== 'mcq');
     document.getElementById('history-tab-ai').classList.toggle('hidden', tab !== 'ai');
+    const shareBtn = $('btn-history-ai-share');
+    if (shareBtn) shareBtn.classList.toggle('hidden', tab !== 'ai');
     if (tab === 'mcq') renderHistory();
     else aiRenderHistoryTab();
   }
@@ -2367,6 +2437,7 @@ const APP = (() => {
     let history = ls_get(STORAGE_KEYS.history) || [];
     history = history.filter(h => h.id !== id);
     ls_set(STORAGE_KEYS.history, history);
+    mcqHistoryPush();
     toast('🗑️ মুছে ফেলা হয়েছে');
     renderHistory();
   }
@@ -2381,6 +2452,7 @@ const APP = (() => {
   function clearHistory() {
     showModal('MCQ ইতিহাস মুছুন', 'সব MCQ পরীক্ষার ইতিহাস মুছে ফেলা হবে। এটি পূর্বাবস্থায় ফেরানো সম্ভব নয়।', () => {
       ls_del(STORAGE_KEYS.history);
+      mcqHistoryPush();
       toast('MCQ ইতিহাস মুছে ফেলা হয়েছে');
       renderHistory();
     });
@@ -2396,6 +2468,64 @@ const APP = (() => {
     const history = state.ai.history || [];
     if (history.length === 0) { toast('কোনো AI ইতিহাস নেই'); return; }
     downloadJSON(history, 'ai_history_' + Date.now() + '.json');
+  }
+
+  // ─── AI TEST ইতিহাস — App থেকেই readable টেক্সট আকারে কপি/শেয়ার (Sheet খুলে ম্যানুয়ালি
+  // কপি করার বদলে) — ঠিক mcqAiShareToApps()-এর মতোই প্যাটার্নে: navigator.share সাপোর্ট থাকলে
+  // .txt ফাইল + clipboard দুটোই হয়, না থাকলে শুধু clipboard-এ কপি হয়।
+  function aiBuildHistoryShareText() {
+    const history = state.ai.history || [];
+    let text = `🧠 AI টেস্ট — পরীক্ষার ইতিহাস (মোট ${history.length}টি)\n`;
+    text += `তৈরি হয়েছে: ${new Date().toLocaleString('bn-BD')}\n`;
+    text += '════════════════════════════\n\n';
+
+    history.forEach((h, i) => {
+      const d = new Date(h.date || h.startTime || Date.now());
+      const isExam = h.type === 'exam';
+      const hasScore = h.score !== null && h.score !== undefined;
+
+      text += `${i + 1}. `;
+      if (isExam) {
+        text += `[পরীক্ষা] ${h.subject || ''}${h.chapter ? ' › ' + h.chapter : ''}\n`;
+        if (h.categories) text += `ক্যাটেগরি: ${h.categories}\n`;
+        if (h.totalQ) text += `মোট প্রশ্ন: ${h.totalQ}\n`;
+      } else {
+        text += `${h.subject || ''}${h.chapter ? ' › ' + h.chapter : ''}${h.category ? ' (' + h.category + ')' : ''}\n`;
+        if (h.question) text += `প্রশ্ন: ${h.question}\n`;
+      }
+      text += `তারিখ: ${d.toLocaleDateString('bn-BD')} ${d.toLocaleTimeString('bn-BD', { hour: '2-digit', minute: '2-digit' })}\n`;
+      text += `নম্বর: ${hasScore ? h.score + ' / ' + h.out_of : 'দেওয়া হয়নি'}\n`;
+      if (h.feedback) text += `ফিডব্যাক:\n${h.feedback}\n`;
+      if (h.remark && String(h.remark).trim()) text += `মন্তব্য: ${h.remark}\n`;
+      text += '────────────────────────────\n\n';
+    });
+
+    return text;
+  }
+
+  function aiShareHistoryToApps() {
+    const history = state.ai.history || [];
+    if (history.length === 0) { toast('কোনো AI ইতিহাস নেই'); return; }
+
+    const shareText = aiBuildHistoryShareText();
+
+    if (!navigator.share) {
+      copyTextToClipboard(shareText).then(ok => {
+        toast(ok ? '📋 ইতিহাস ক্লিপবোর্ডে কপি হয়েছে' : '❌ কপি ব্যর্থ');
+      });
+      return;
+    }
+
+    const historyFile = _textToFile(shareText, 'ai_exam_result_' + Date.now() + '.txt');
+    const backupCopyOk = _execCopySync(shareText);
+    const shareData = historyFile ? { files: [historyFile] } : { text: shareText };
+
+    if (historyFile && navigator.canShare && !navigator.canShare(shareData)) {
+      toast(backupCopyOk ? '⚠️ ফাইল শেয়ার সাপোর্ট নেই — Clipboard-এ কপি হয়েছে' : '⚠️ ফাইল শেয়ার সাপোর্ট নেই', 4000);
+      return;
+    }
+    if (backupCopyOk) toast('📋 ইতিহাস Clipboard-এও কপি হয়েছে', 3000);
+    navigator.share(shareData).catch(() => {});
   }
 
   function aiClearHistory() {
@@ -2425,6 +2555,8 @@ const APP = (() => {
     $('sys-info').innerHTML = `বিষয়: ${subs.length}<br>মোট প্রশ্ন: ${totalQ}<br>মোট পরীক্ষা: ${history.length}<br>সিস্টেম: MCQ Exam System v1.0`;
     updateSyncStatusUI();
     rdUpdateSyncStatusUI();
+    examUpdateSyncStatusUI();
+    mcqHistUpdateSyncStatusUI();
     loadDriveLink();
   }
 
@@ -2728,9 +2860,10 @@ const APP = (() => {
   }
 
   function aiSaveQBank() { ls_set(STORAGE_KEYS.aiQBank, state.ai.qbank); }
-  function aiSaveHistoryStore() { ls_set(STORAGE_KEYS.aiHistory, state.ai.history); }
+  function aiSaveHistoryStore() { ls_set(STORAGE_KEYS.aiHistory, state.ai.history); examHistoryPush(); }
 
   // ─── AI HISTORY TAB ───
+  var _expandedRemarks = {}; // id → true হলে সেই আইটেমের মন্তব্য প্রিভিউ expand করা আছে (in-memory, default hidden)
   function aiRenderHistoryTab() {
     var el = document.getElementById('ai-history-list');
     if (!el) return;
@@ -2796,10 +2929,44 @@ const APP = (() => {
 
       var editBtn = document.createElement('button');
       editBtn.className = 'btn btn-secondary btn-sm';
-      editBtn.setAttribute('style','margin-top:10px;width:100%');
+      editBtn.setAttribute('style','margin-top:10px;flex:1');
       editBtn.textContent = '\u270F\uFE0F \u{09A8}\u{09AE}\u{09CD}\u{09AC}\u{09B0} ' + (hasScore ? '\u{09AA}\u{09B0}\u{09BF}\u{09AC}\u{09B0}\u{09CD}\u{09A4}\u{09A8}' : '\u{09A6}\u{09BF}\u{09A8}');
       editBtn.onclick = function(e) { e.stopPropagation(); APP.aiOpenScoreEdit(hid); };
-      div.appendChild(editBtn);
+
+      var remarkBtn = document.createElement('button');
+      remarkBtn.className = 'btn btn-secondary btn-sm';
+      remarkBtn.setAttribute('style','margin-top:10px;flex:1');
+      var hasRemark = !!(h.remark && String(h.remark).trim());
+      remarkBtn.textContent = '\u{1F4AC} \u{09AE}\u{09A8}\u{09CD}\u{09A4}\u{09AC}\u{09CD}\u{09AF} ' + (hasRemark ? '\u{09AA}\u{09B0}\u{09BF}\u{09AC}\u{09B0}\u{09CD}\u{09A4}\u{09A8}' : '\u{09B2}\u{09BF}\u{0996}\u09C1\u09A8');
+      remarkBtn.onclick = function(e) { e.stopPropagation(); APP.aiOpenRemarkEdit(hid); };
+
+      var btnRow = document.createElement('div');
+      btnRow.setAttribute('style','display:flex;gap:8px');
+      btnRow.appendChild(editBtn);
+      btnRow.appendChild(remarkBtn);
+
+      var isExpanded = !!_expandedRemarks[hid];
+      if (hasRemark) {
+        var toggleBtn = document.createElement('button');
+        toggleBtn.className = 'btn btn-secondary btn-sm';
+        toggleBtn.setAttribute('style','margin-top:10px;flex:0 0 auto;width:40px;padding:0');
+        toggleBtn.textContent = isExpanded ? '\u25B2' : '\u25BC';
+        toggleBtn.setAttribute('aria-label', 'মন্তব্য দেখান/লুকান');
+        toggleBtn.onclick = function(e) {
+          e.stopPropagation();
+          _expandedRemarks[hid] = !_expandedRemarks[hid];
+          aiRenderHistoryTab();
+        };
+        btnRow.appendChild(toggleBtn);
+      }
+      div.appendChild(btnRow);
+
+      if (hasRemark && isExpanded) {
+        var remarkPreview = document.createElement('div');
+        remarkPreview.setAttribute('style','margin-top:8px;padding:8px 10px;background:var(--surface2);border-radius:var(--radius-sm);font-size:13px;color:var(--text2);white-space:pre-wrap');
+        remarkPreview.textContent = '\u{1F4AC} ' + h.remark;
+        div.appendChild(remarkPreview);
+      }
 
       el.appendChild(div);
     });
@@ -2848,6 +3015,38 @@ const APP = (() => {
     aiSaveHistoryStore();
     aiCloseScoreEdit();
     toast('✅ নম্বর সংরক্ষিত হয়েছে');
+    aiRenderHistoryTab();
+  }
+
+  // ─── REMARK / মন্তব্য EDIT ───
+  state._remarkEditId = null;
+  function aiOpenRemarkEdit(id) {
+    const h = (state.ai.history || []).find(function(x) { return x.id === id; });
+    if (!h) return;
+    state._remarkEditId = id;
+    const info = document.getElementById('ai-remark-edit-info');
+    const isExam = h.type === 'exam';
+    if (info) info.textContent = (isExam ? 'পরীক্ষা' : 'AI চেক') + ' — ' + (h.subject || '') + (h.chapter ? ' › ' + h.chapter : '');
+    const inp = document.getElementById('ai-remark-edit-input');
+    if (inp) inp.value = h.remark || '';
+    document.getElementById('ai-remark-edit-overlay').classList.remove('hidden');
+  }
+
+  function aiCloseRemarkEdit() {
+    document.getElementById('ai-remark-edit-overlay').classList.add('hidden');
+    state._remarkEditId = null;
+  }
+
+  function aiSaveRemarkEdit() {
+    const id = state._remarkEditId;
+    if (!id) return;
+    const inp = document.getElementById('ai-remark-edit-input');
+    const remark = (inp.value || '').trim();
+    const h = (state.ai.history || []).find(function(x) { return x.id === id; });
+    if (h) { h.remark = remark; }
+    aiSaveHistoryStore();
+    aiCloseRemarkEdit();
+    toast('✅ মন্তব্য সংরক্ষিত হয়েছে');
     aiRenderHistoryTab();
   }
 
@@ -3217,7 +3416,9 @@ const APP = (() => {
     };
     state.ai.answerMode = 'image';
     state.ai.imageDataUrl = null;
+    state.ai.imageDataUrls = [];
     state.ai.selectedPromptId = null;
+    _aiRenderImageBox();
 
     const ta = $('ai-answer-textarea');
     if (ta) ta.value = '';
@@ -3504,8 +3705,10 @@ const APP = (() => {
     };
     state.ai.answerMode = 'image';
     state.ai.imageDataUrl = null;
+    state.ai.imageDataUrls = [];
     state.ai.selectedPromptId = null;
     $('ai-answer-textarea').value = '';
+    _aiRenderImageBox();
 
     const shareWrap = $('ai-share-prompt-wrap');
     if (shareWrap) shareWrap.classList.add('hidden');
@@ -3531,18 +3734,50 @@ const APP = (() => {
   }
 
   function aiHandleImageSelect(event) {
-    const file = event.target.files && event.target.files[0];
-    if (!file) return;
-    if (!file.type.startsWith('image/')) { toast('❌ শুধু ছবি ফাইল দিন'); return; }
-    const reader = new FileReader();
-    reader.onload = e => {
-      state.ai.imageDataUrl = e.target.result;
-      const box = $('ai-img-upload-box');
-      box.classList.add('has-img');
-      box.innerHTML = `<img src="${state.ai.imageDataUrl}" class="img-preview" alt="উত্তরের ছবি">`;
-    };
-    reader.onerror = () => toast('❌ ছবি লোড করতে সমস্যা');
-    reader.readAsDataURL(file);
+    const files = Array.from(event.target.files || []).filter(f => f.type.startsWith('image/'));
+    event.target.value = ''; // একই ফাইল আবার select করলেও change event ফায়ার হবে
+    if (files.length === 0) { toast('❌ শুধু ছবি ফাইল দিন'); return; }
+
+    const readers = files.map(file => new Promise(resolve => {
+      const reader = new FileReader();
+      reader.onload = e => resolve(e.target.result);
+      reader.onerror = () => resolve(null);
+      reader.readAsDataURL(file);
+    }));
+
+    Promise.all(readers).then(results => {
+      const ok = results.filter(Boolean);
+      if (ok.length < results.length) toast('⚠️ কিছু ছবি লোড করতে সমস্যা হয়েছে');
+      state.ai.imageDataUrls = state.ai.imageDataUrls.concat(ok);
+      state.ai.imageDataUrl = state.ai.imageDataUrls[0] || null; // AI Checker submit-এর জন্য প্রথম ছবি
+      _aiRenderImageBox();
+    });
+  }
+
+  // ছবির thumbnail grid রেন্ডার করে — একাধিক ছবি + remove বাটন + আরও যোগ করার বাটন
+  function _aiRenderImageBox() {
+    const box = $('ai-img-upload-box');
+    if (!box) return;
+    const urls = state.ai.imageDataUrls || [];
+    if (urls.length === 0) {
+      box.classList.remove('has-img');
+      box.innerHTML = '<div style="font-size:32px;margin-bottom:6px">📷</div>UPLOAD PHOTO<div style="font-size:11px;margin-top:4px;opacity:.7">একাধিক ছবিও একসাথে সিলেক্ট করা যাবে</div>';
+      return;
+    }
+    box.classList.add('has-img');
+    let html = '<div class="img-thumb-grid">';
+    urls.forEach((url, i) => {
+      html += `<div class="img-thumb"><img src="${url}" alt="উত্তরের ছবি ${i + 1}">
+        <div class="img-thumb-remove" onclick="event.stopPropagation();APP.aiRemoveImage(${i})">✕</div></div>`;
+    });
+    html += '<div class="img-thumb-add" onclick="event.stopPropagation();document.getElementById(\'ai-image-input\').click()">+</div></div>';
+    box.innerHTML = html;
+  }
+
+  function aiRemoveImage(idx) {
+    state.ai.imageDataUrls.splice(idx, 1);
+    state.ai.imageDataUrl = state.ai.imageDataUrls[0] || null;
+    _aiRenderImageBox();
   }
 
   // ─── SHARE: AI App (Gemini/Claude/ChatGPT)-এ শেয়ার ───
@@ -3560,7 +3795,7 @@ const APP = (() => {
     const promptText   = selPrompt ? selPrompt.text.trim() : '';
     const answerMode   = state.ai.answerMode;
     const studentText  = ($('ai-answer-textarea').value || '').trim();
-    const imageDataUrl = state.ai.imageDataUrl;
+    const imageDataUrls = state.ai.imageDataUrls || [];
 
     // ── Multi-question mode: selectedQuestions থাকলে সব questions copy ──
     const multiSel = state.ai.selectedQuestions || [];
@@ -3583,29 +3818,34 @@ const APP = (() => {
         setTimeout(() => wrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
       }
 
-      const copyOk = _execCopySync(shareText);
-      if (copyOk) toast(`📋 ${multiSel.length}টি প্রশ্ন Clipboard-এ Copy হয়েছে — App-এ Paste করুন`, 3500);
-
-      const multiHasImage = !!(imageDataUrl && answerMode === 'image');
+      const multiHasImage = !!(imageDataUrls.length && answerMode === 'image');
 
       if (!navigator.share) {
-        if (!copyOk) toast('⚠️ Copy ব্যর্থ — নিচের বক্স থেকে manually copy করুন', 4000);
+        const copyOk = _execCopySync(shareText);
+        toast(copyOk ? `📋 ${multiSel.length}টি প্রশ্ন Clipboard-এ Copy হয়েছে — App-এ Paste করুন` : '⚠️ Copy ব্যর্থ — নিচের বক্স থেকে manually copy করুন', 4000);
         return;
       }
 
+      const files = [];
       if (multiHasImage) {
-        const blob = _dataUrlToBlob(imageDataUrl);
-        if (!blob) { toast('❌ ছবি প্রসেস করতে সমস্যা — নিচের বক্স থেকে copy করুন', 3000); return; }
-        const file = new File([blob], 'answer.jpg', { type: blob.type || 'image/jpeg' });
-        const shareData = { files: [file] };
-        if (navigator.canShare && !navigator.canShare(shareData)) {
-          toast('⚠️ এই ব্রাউজারে ছবি শেয়ার সাপোর্ট নেই — Gallery থেকে ম্যানুয়ালি Upload করুন', 4000);
-          return;
-        }
-        navigator.share(shareData).catch(() => {});
-      } else {
-        navigator.share({ text: shareText }).catch(() => {});
+        imageDataUrls.forEach((url, i) => {
+          const blob = _dataUrlToBlob(url);
+          if (blob) files.push(new File([blob], `answer_${i + 1}.jpg`, { type: blob.type || 'image/jpeg' }));
+        });
       }
+      const promptFile = _textToFile(shareText, 'questions.txt');
+      if (promptFile) files.push(promptFile);
+
+      // ব্যাকআপ হিসেবে clipboard-এও কপি রাখা হচ্ছে
+      const backupCopyOk = _execCopySync(shareText);
+
+      const shareData = files.length > 0 ? { files } : { text: shareText };
+      if (files.length > 0 && navigator.canShare && !navigator.canShare(shareData)) {
+        toast(backupCopyOk ? '⚠️ ফাইল শেয়ার সাপোর্ট নেই — Clipboard-এ কপি হয়েছে' : '⚠️ ফাইল শেয়ার সাপোর্ট নেই', 4000);
+        return;
+      }
+      if (backupCopyOk) toast(`📋 ${multiSel.length}টি প্রশ্ন Clipboard-এও কপি হয়েছে`, 3000);
+      navigator.share(shareData).catch(() => {});
       return;
     }
 
@@ -3633,36 +3873,44 @@ const APP = (() => {
       setTimeout(() => wrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
     }
 
-    // ── STEP 1: user gesture এর মধ্যেই clipboard copy — share এর আগে ──
-    // execCommand synchronous হওয়ায় user gesture context হারায় না
-    const copyOk = _execCopySync(shareText);
-    if (copyOk) {
-      toast('📋 প্রম্পট ক্লিপবোর্ডে কপি হয়েছে — App-এ Paste করুন', 3500);
-    }
-
-    // ── STEP 2: share ──
-    const hasImage = !!(imageDataUrl && answerMode === 'image');
+    // ── Share Sheet-এ .txt ফাইল হিসেবে সরাসরি পাঠাও ──
+    const hasImage = !!(imageDataUrls.length && answerMode === 'image');
 
     if (!navigator.share) {
-      if (!copyOk) toast('⚠️ কপি ব্যর্থ — নিচের বক্স থেকে manually copy করুন', 4000);
+      const copyOk = _execCopySync(shareText);
+      toast(copyOk ? '📋 প্রম্পট ক্লিপবোর্ডে কপি হয়েছে — App-এ Paste করুন' : '⚠️ কপি ব্যর্থ — নিচের বক্স থেকে manually copy করুন', 4000);
       return;
     }
 
+    const files = [];
     if (hasImage) {
-      const blob = _dataUrlToBlob(imageDataUrl);
-      if (!blob) {
-        toast('❌ ছবি প্রসেস করতে সমস্যা — নিচের বক্স থেকে copy করুন', 3000);
-        return;
-      }
-      const file = new File([blob], 'answer.jpg', { type: blob.type || 'image/jpeg' });
-      const shareData = { files: [file] };
-      if (navigator.canShare && !navigator.canShare(shareData)) {
-        toast('⚠️ এই ব্রাউজারে ছবি শেয়ার সাপোর্ট নেই — Gallery থেকে ম্যানুয়ালি Upload করুন', 4000);
-        return;
-      }
-      navigator.share(shareData).catch(() => {});
-    } else {
-      navigator.share({ text: shareText }).catch(() => {});
+      imageDataUrls.forEach((url, i) => {
+        const blob = _dataUrlToBlob(url);
+        if (blob) files.push(new File([blob], `answer_${i + 1}.jpg`, { type: blob.type || 'image/jpeg' }));
+      });
+    }
+    const promptFile = _textToFile(shareText, 'question.txt');
+    if (promptFile) files.push(promptFile);
+
+    // ব্যাকআপ হিসেবে clipboard-এও কপি রাখা হচ্ছে
+    const backupCopyOk = _execCopySync(shareText);
+
+    const shareData = files.length > 0 ? { files } : { text: shareText };
+    if (files.length > 0 && navigator.canShare && !navigator.canShare(shareData)) {
+      toast(backupCopyOk ? '⚠️ ফাইল শেয়ার সাপোর্ট নেই — Clipboard-এ কপি হয়েছে' : '⚠️ ফাইল শেয়ার সাপোর্ট নেই', 4000);
+      return;
+    }
+    if (backupCopyOk) toast('📋 প্রম্পট Clipboard-এও কপি হয়েছে', 3000);
+    navigator.share(shareData).catch(() => {});
+  }
+
+  // text স্ট্রিং → .txt File অবজেক্ট (Web Share API-তে file হিসেবে পাঠানোর জন্য)
+  function _textToFile(text, filename) {
+    try {
+      const blob = new Blob([text], { type: 'text/plain' });
+      return new File([blob], filename, { type: 'text/plain' });
+    } catch (e) {
+      return null;
     }
   }
 
@@ -4446,10 +4694,62 @@ const APP = (() => {
     const input = $('home-diary-subject-input');
     const val = input && input.value.trim();
     if (!val) { toast('❌ সাবজেক্টের নাম লিখুন'); return; }
+    if (entry.subjects.includes(val)) { toast('⚠️ এই সাবজেক্ট আগে থেকেই আছে'); return; }
     entry.subjects.push(val);
     saveHomeDiary();
     input.value = '';
     renderHomeDiarySubjectList();
+    toast('✅ যোগ করা হয়েছে');
+  }
+
+  // সাপ্তাহিক রুটিনে যত সাবজেক্ট আছে (সব দিন মিলিয়ে), তার ইউনিক লিস্ট বের করা —
+  // ডায়েরির পুরনো এন্ট্রি থেকে না, শুধু রুটিন থেকেই
+  function homeDiaryGetAllSubjects() {
+    const seen = [];
+    ROUTINE_DAYS.forEach(d => {
+      const subjects = state.routine[d.key] || [];
+      subjects.forEach(subj => {
+        if (subj && !seen.includes(subj)) seen.push(subj);
+      });
+    });
+    return seen;
+  }
+
+  function homeDiaryOpenSubjectPicker() {
+    const dateStr = ($('home-diary-date') || {}).value;
+    if (!dateStr) { toast('❌ তারিখ নির্বাচন করুন'); return; }
+    const all = homeDiaryGetAllSubjects();
+    const el = $('home-diary-subject-picker-list');
+    if (!el) return;
+    if (all.length === 0) {
+      el.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📭</div><div>রুটিনে এখনো কোনো সাবজেক্ট যোগ করা হয়নি</div></div>`;
+    } else {
+      const entry = state.diary[dateStr];
+      const currentSubjects = (entry && entry.subjects) || [];
+      el.innerHTML = all.map(subj => {
+        const already = currentSubjects.includes(subj);
+        return `
+        <button class="btn btn-secondary btn-full" style="margin-bottom:8px;text-align:left;${already ? 'opacity:.5' : ''}" onclick="APP.homeDiaryPickSubject('${escapeHtml(subj).replace(/'/g, "\\'")}')">
+          ${escapeHtml(subj)}${already ? ' ✓' : ''}
+        </button>`;
+      }).join('');
+    }
+    $('home-diary-subject-picker-overlay').classList.remove('hidden');
+  }
+
+  function homeDiaryCloseSubjectPicker() {
+    $('home-diary-subject-picker-overlay').classList.add('hidden');
+  }
+
+  function homeDiaryPickSubject(subj) {
+    const dateStr = ($('home-diary-date') || {}).value;
+    if (!dateStr) { toast('❌ তারিখ নির্বাচন করুন'); return; }
+    const entry = homeEnsureDiaryEntry(dateStr);
+    if (entry.subjects.includes(subj)) { toast('⚠️ এই সাবজেক্ট আগে থেকেই আছে'); return; }
+    entry.subjects.push(subj);
+    saveHomeDiary();
+    renderHomeDiarySubjectList();
+    homeDiaryCloseSubjectPicker();
     toast('✅ যোগ করা হয়েছে');
   }
 
@@ -4549,6 +4849,150 @@ const APP = (() => {
       });
   }
 
+  // ─── AI TEST: পরীক্ষার ইতিহাস ↔ GOOGLE SHEET ("EXAM RESULT" ট্যাব) SYNC ───
+  // ROUTINE & DIARY sync-এর মতোই কাজ করে: App-এ history-তে কিছু যোগ/মুছা/এডিট হলেই (aiSaveHistoryStore
+  // কল হওয়ার সাথে সাথে) auto-push হয় Sheet-এর "EXAM RESULT" ট্যাবে (একই AI Test Apps Script URL
+  // ব্যবহার হয় — নতুন URL ফিল্ডের দরকার নেই)। App-এর ইতিহাস খালি থাকলে (নতুন ডিভাইস ইত্যাদি) নিচের
+  // SYNC বাটন চেপে Sheet থেকে সব ফিরিয়ে আনা যায়।
+  let examPushTimer = null;
+
+  function examHistoryPush() {
+    const url = state.ai.checkerUrl || localStorage.getItem(STORAGE_KEYS.aiCheckerUrl);
+    if (!url) return; // URL সেট না থাকলে silently কিছুই হবে না, existing local-storage flow অক্ষত থাকবে
+    clearTimeout(examPushTimer);
+    examPushTimer = setTimeout(() => {
+      fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'saveExamHistory', history: state.ai.history || [] }),
+      })
+        .then(r => r.json())
+        .then(data => {
+          if (data && !data.error) {
+            localStorage.setItem(STORAGE_KEYS.examLastSync, Date.now().toString());
+            examUpdateSyncStatusUI();
+          }
+        })
+        .catch(() => { /* auto-push silently ব্যর্থ হলেও local ইতিহাস অক্ষত থাকে */ });
+    }, 1200);
+  }
+
+  function examUpdateSyncStatusUI(msg) {
+    const el = $('exam-sync-status');
+    if (!el) return;
+    if (msg) { el.textContent = msg; return; }
+    const last = localStorage.getItem(STORAGE_KEYS.examLastSync);
+    el.textContent = last ? `সর্বশেষ সিঙ্ক: ${new Date(parseInt(last)).toLocaleString('bn-BD')}` : 'এখনো সিঙ্ক করা হয়নি';
+  }
+
+  function aiSyncExamHistoryFromSheet() {
+    const url = state.ai.checkerUrl || localStorage.getItem(STORAGE_KEYS.aiCheckerUrl);
+    if (!url) { toast('❌ প্রথমে সেটিংসে "AI Test Apps Script URL" দিয়ে সংরক্ষণ করুন'); return; }
+    const btn = $('btn-exam-sync');
+    if (btn) { btn.disabled = true; btn.textContent = '⏳'; }
+    examUpdateSyncStatusUI('⏳ Sheet থেকে পরীক্ষার ইতিহাস আনা হচ্ছে...');
+
+    const sep = url.includes('?') ? '&' : '?';
+    fetch(url + sep + 'action=getExamHistory&t=' + Date.now())
+      .then(r => r.text().then(txt => ({ ok: r.ok, status: r.status, txt: txt })))
+      .then(res => {
+        if (!res.ok) throw new Error('HTTP ' + res.status + ' — ' + res.txt.substring(0, 200));
+        let data;
+        try { data = JSON.parse(res.txt); }
+        catch (e) {
+          // Apps Script কোনো কারণে JSON না দিয়ে HTML (যেমন লগইন/পারমিশন পেজ) ফেরত দিলে
+          // এখানে ধরা পড়বে — raw response console-এ দেখা যাবে (F12 → Console)
+          console.error('EXAM history sync — non-JSON response:', res.txt);
+          throw new Error('Sheet থেকে JSON আসেনি (raw response console-এ দেখুন — Apps Script deploy/permission সমস্যা হতে পারে)');
+        }
+        if (!data || data.error) throw new Error(data && data.error || 'ভুল ফরম্যাট');
+        state.ai.history = Array.isArray(data.history) ? data.history.sort((a, b) => (b.date || 0) - (a.date || 0)) : [];
+        ls_set(STORAGE_KEYS.aiHistory, state.ai.history);
+        localStorage.setItem(STORAGE_KEYS.examLastSync, Date.now().toString());
+        if (state.ai.history.length === 0) {
+          toast('⚠️ সিঙ্ক সম্পন্ন হয়েছে, কিন্তু Sheet-এর "EXAM RESULT" ট্যাবে কোনো ডেটা পাওয়া যায়নি');
+          examUpdateSyncStatusUI('⚠️ Sheet-এ "EXAM RESULT" ট্যাব খালি পাওয়া গেছে');
+        } else {
+          toast('✅ পরীক্ষার ইতিহাস সিঙ্ক সম্পন্ন হয়েছে (' + state.ai.history.length + 'টি)');
+          examUpdateSyncStatusUI();
+        }
+        if ((state.historyTab || 'mcq') === 'ai') aiRenderHistoryTab();
+      })
+      .catch(err => {
+        toast('❌ সিঙ্ক ব্যর্থ: ' + err.message);
+        examUpdateSyncStatusUI('❌ সিঙ্ক ব্যর্থ হয়েছে — আগের ডেটা অপরিবর্তিত আছে');
+      })
+      .finally(() => {
+        if (btn) { btn.disabled = false; btn.textContent = '🔄 SYNC'; }
+      });
+  }
+
+  // ─── MCQ: পরীক্ষার ইতিহাস ↔ GOOGLE SHEET ("MCQ RESULT" ট্যাব) SYNC ───
+  // EXAM RESULT / ROUTINE & DIARY sync-এর মতোই কাজ করে: App-এ MCQ history-তে কিছু যোগ/মুছা হলেই
+  // (submitExam / deleteMcqHistoryItem / clearHistory থেকে mcqHistoryPush() কল হওয়ার সাথে সাথে)
+  // auto-push হয় Sheet-এর "MCQ RESULT" ট্যাবে (একই AI Test Apps Script URL ব্যবহার হয় — নতুন URL
+  // ফিল্ডের দরকার নেই)। App-এর ইতিহাস খালি থাকলে (নতুন ডিভাইস ইত্যাদি) নিচের SYNC বাটন চেপে Sheet
+  // থেকে সব ফিরিয়ে আনা যায়।
+  let mcqHistPushTimer = null;
+
+  function mcqHistoryPush() {
+    const url = state.ai.checkerUrl || localStorage.getItem(STORAGE_KEYS.aiCheckerUrl);
+    if (!url) return; // URL সেট না থাকলে silently কিছুই হবে না, existing local-storage flow অক্ষত থাকবে
+    clearTimeout(mcqHistPushTimer);
+    mcqHistPushTimer = setTimeout(() => {
+      const history = ls_get(STORAGE_KEYS.history) || [];
+      fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'saveMcqHistory', history }),
+      })
+        .then(r => r.json())
+        .then(data => {
+          if (data && !data.error) {
+            localStorage.setItem(STORAGE_KEYS.mcqHistLastSync, Date.now().toString());
+            mcqHistUpdateSyncStatusUI();
+          }
+        })
+        .catch(() => { /* auto-push silently ব্যর্থ হলেও local ইতিহাস অক্ষত থাকে */ });
+    }, 1200);
+  }
+
+  function mcqHistUpdateSyncStatusUI(msg) {
+    const el = $('mcq-hist-sync-status');
+    if (!el) return;
+    if (msg) { el.textContent = msg; return; }
+    const last = localStorage.getItem(STORAGE_KEYS.mcqHistLastSync);
+    el.textContent = last ? `সর্বশেষ সিঙ্ক: ${new Date(parseInt(last)).toLocaleString('bn-BD')}` : 'এখনো সিঙ্ক করা হয়নি';
+  }
+
+  function mcqSyncHistoryFromSheet() {
+    const url = state.ai.checkerUrl || localStorage.getItem(STORAGE_KEYS.aiCheckerUrl);
+    if (!url) { toast('❌ প্রথমে সেটিংসে "AI Test Apps Script URL" দিয়ে সংরক্ষণ করুন'); return; }
+    const btn = $('btn-mcq-hist-sync');
+    if (btn) { btn.disabled = true; btn.textContent = '⏳'; }
+    mcqHistUpdateSyncStatusUI('⏳ Sheet থেকে MCQ ইতিহাস আনা হচ্ছে...');
+
+    const sep = url.includes('?') ? '&' : '?';
+    fetch(url + sep + 'action=getMcqHistory&t=' + Date.now())
+      .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(data => {
+        if (!data || data.error) throw new Error(data && data.error || 'ভুল ফরম্যাট');
+        const history = Array.isArray(data.history) ? data.history.sort((a, b) => (b.startTime || 0) - (a.startTime || 0)) : [];
+        ls_set(STORAGE_KEYS.history, history);
+        localStorage.setItem(STORAGE_KEYS.mcqHistLastSync, Date.now().toString());
+        toast('✅ MCQ ইতিহাস সিঙ্ক সম্পন্ন হয়েছে');
+        mcqHistUpdateSyncStatusUI();
+        if ((state.historyTab || 'mcq') === 'mcq') renderHistory();
+      })
+      .catch(err => {
+        toast('❌ সিঙ্ক ব্যর্থ: ' + err.message);
+        mcqHistUpdateSyncStatusUI('❌ সিঙ্ক ব্যর্থ হয়েছে — আগের ডেটা অপরিবর্তিত আছে');
+      })
+      .finally(() => {
+        if (btn) { btn.disabled = false; btn.textContent = '🔄 SYNC'; }
+      });
+  }
+
   // ─── AI PROVIDER CONFIG ───
   function aiProviderFieldsToggle() {
     const sel = $('ai-provider-select');
@@ -4618,6 +5062,7 @@ const APP = (() => {
     expandedPromptCategory: null,
     answerMode: 'image',
     imageDataUrl: null,
+    imageDataUrls: [],   // Share to AI App-এর জন্য একাধিক ছবি
     examMode: 'all',   // 'all' | 'custom' | 'range'
   };
 
@@ -4778,16 +5223,49 @@ const APP = (() => {
   }
 
   function mcqAiHandleImageSelect(event) {
-    const file = event.target.files && event.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = e => {
-      mcqAiLocalState.imageDataUrl = e.target.result;
-      const box = $('mcq-ai-img-upload-box');
-      box.innerHTML = `<img src="${e.target.result}" class="img-preview">`;
-      box.classList.add('has-img');
-    };
-    reader.readAsDataURL(file);
+    const files = Array.from(event.target.files || []).filter(f => f.type.startsWith('image/'));
+    event.target.value = '';
+    if (files.length === 0) { toast('❌ শুধু ছবি ফাইল দিন'); return; }
+
+    const readers = files.map(file => new Promise(resolve => {
+      const reader = new FileReader();
+      reader.onload = e => resolve(e.target.result);
+      reader.onerror = () => resolve(null);
+      reader.readAsDataURL(file);
+    }));
+
+    Promise.all(readers).then(results => {
+      const ok = results.filter(Boolean);
+      if (ok.length < results.length) toast('⚠️ কিছু ছবি লোড করতে সমস্যা হয়েছে');
+      mcqAiLocalState.imageDataUrls = (mcqAiLocalState.imageDataUrls || []).concat(ok);
+      mcqAiLocalState.imageDataUrl = mcqAiLocalState.imageDataUrls[0] || null;
+      _mcqAiRenderImageBox();
+    });
+  }
+
+  function _mcqAiRenderImageBox() {
+    const box = $('mcq-ai-img-upload-box');
+    if (!box) return;
+    const urls = mcqAiLocalState.imageDataUrls || [];
+    if (urls.length === 0) {
+      box.classList.remove('has-img');
+      box.innerHTML = '<div style="font-size:32px;margin-bottom:6px">📷</div>UPLOAD PHOTO<div style="font-size:11px;margin-top:4px;opacity:.7">একাধিক ছবিও একসাথে সিলেক্ট করা যাবে</div>';
+      return;
+    }
+    box.classList.add('has-img');
+    let html = '<div class="img-thumb-grid">';
+    urls.forEach((url, i) => {
+      html += `<div class="img-thumb"><img src="${url}" alt="উত্তরের ছবি ${i + 1}">
+        <div class="img-thumb-remove" onclick="event.stopPropagation();APP.mcqAiRemoveImage(${i})">✕</div></div>`;
+    });
+    html += '<div class="img-thumb-add" onclick="event.stopPropagation();document.getElementById(\'mcq-ai-image-input\').click()">+</div></div>';
+    box.innerHTML = html;
+  }
+
+  function mcqAiRemoveImage(idx) {
+    mcqAiLocalState.imageDataUrls.splice(idx, 1);
+    mcqAiLocalState.imageDataUrl = mcqAiLocalState.imageDataUrls[0] || null;
+    _mcqAiRenderImageBox();
   }
 
   function mcqAiShareToApps() {
@@ -4836,28 +5314,34 @@ const APP = (() => {
       setTimeout(() => wrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
     }
 
-    const copyOk = _execCopySync(shareText);
-    if (copyOk) toast('📋 প্রম্পট ক্লিপবোর্ডে কপি হয়েছে — App-এ Paste করুন', 3500);
-
-    const hasImage = !!(mcqAiLocalState.imageDataUrl && mcqAiLocalState.answerMode === 'image');
+    const imageDataUrls = mcqAiLocalState.imageDataUrls || [];
+    const hasImage = !!(imageDataUrls.length && mcqAiLocalState.answerMode === 'image');
     if (!navigator.share) {
-      if (!copyOk) toast('⚠️ কপি ব্যর্থ — নিচের বক্স থেকে manually copy করুন', 4000);
+      const copyOk = _execCopySync(shareText);
+      toast(copyOk ? '📋 প্রম্পট ক্লিপবোর্ডে কপি হয়েছে — App-এ Paste করুন' : '⚠️ কপি ব্যর্থ — নিচের বক্স থেকে manually copy করুন', 4000);
       return;
     }
 
+    const files = [];
     if (hasImage) {
-      const blob = _dataUrlToBlob(mcqAiLocalState.imageDataUrl);
-      if (!blob) { toast('❌ ছবি প্রসেস করতে সমস্যা — নিচের বক্স থেকে copy করুন', 3000); return; }
-      const file = new File([blob], 'answer.jpg', { type: blob.type || 'image/jpeg' });
-      const shareData = { files: [file] };
-      if (navigator.canShare && !navigator.canShare(shareData)) {
-        toast('⚠️ এই ব্রাউজারে ছবি শেয়ার সাপোর্ট নেই — Gallery থেকে ম্যানুয়ালি Upload করুন', 4000);
-        return;
-      }
-      navigator.share(shareData).catch(() => {});
-    } else {
-      navigator.share({ text: shareText }).catch(() => {});
+      imageDataUrls.forEach((url, i) => {
+        const blob = _dataUrlToBlob(url);
+        if (blob) files.push(new File([blob], `answer_${i + 1}.jpg`, { type: blob.type || 'image/jpeg' }));
+      });
     }
+    const promptFile = _textToFile(shareText, 'mcq_questions.txt');
+    if (promptFile) files.push(promptFile);
+
+    // ব্যাকআপ হিসেবে clipboard-এও কপি রাখা হচ্ছে
+    const backupCopyOk = _execCopySync(shareText);
+
+    const shareData = files.length > 0 ? { files } : { text: shareText };
+    if (files.length > 0 && navigator.canShare && !navigator.canShare(shareData)) {
+      toast(backupCopyOk ? '⚠️ ফাইল শেয়ার সাপোর্ট নেই — Clipboard-এ কপি হয়েছে' : '⚠️ ফাইল শেয়ার সাপোর্ট নেই', 4000);
+      return;
+    }
+    if (backupCopyOk) toast('📋 প্রম্পট Clipboard-এও কপি হয়েছে', 3000);
+    navigator.share(shareData).catch(() => {});
   }
 
   function mcqAiCopyPromptAgain() {
@@ -4876,17 +5360,18 @@ const APP = (() => {
     saveDriveLink, openDriveLink,
     retryWrong, retryAll, newAttempt,
     clearHistory, exportHistory, exportResult,
-    clearHistoryActive, exportHistoryActive, aiExportHistory, aiClearHistory,
+    clearHistoryActive, exportHistoryActive, aiExportHistory, aiClearHistory, aiShareHistoryToApps,
     switchHistoryTab,
     deleteMcqHistoryItem, deleteAiHistoryItem,
     aiOpenScoreEdit, aiCloseScoreEdit, aiSaveScoreEdit,
+    aiOpenRemarkEdit, aiCloseRemarkEdit, aiSaveRemarkEdit,
     importQuestions, exportQuestions, clearExamState,
     showExitConfirm, closeModal,
     saveSheetUrl, syncFromSheet, toggleAutoSync,
     // AI Test module
     aiSaveCheckerUrl, aiSyncQuestions,
     aiSelectSubject, aiSelectChapter, aiToggleCategory, aiCategoryQuickSetup, aiCategoryViewQuestions, aiShowQuestions, aiQuickExamSetup, aiOpenCategoryCountModal, aiCloseCategoryCountModal, aiConfirmCategoryCount, aiGoBack,
-    aiStartQuestion, aiSetAnswerMode, aiHandleImageSelect,
+    aiStartQuestion, aiSetAnswerMode, aiHandleImageSelect, aiRemoveImage,
     aiToggleQuestion, aiToggleSelectAll, aiCopySelectedQuestions, aiOpenAnswerWithSelected,
     aiOpenExamSetup, aiCloseExamSetup, aiExamToggleSetting, aiStartExam, aiStartAiTest,
     aiShowExitExamConfirm, aiConfirmSubmitExam,
@@ -4896,14 +5381,17 @@ const APP = (() => {
     aiToggleAutoSync,
     // MCQ AI module
     mcqAiOpenPromptModal, mcqAiClosePromptModal, mcqAiAddPrompt, mcqAiDeletePrompt, mcqAiSelectPrompt, mcqAiTogglePromptCategory,
-    mcqAiSetExamMode, mcqAiSetAnswerMode, mcqAiHandleImageSelect, mcqAiShareToApps, mcqAiCopyPromptAgain,
+    mcqAiSetExamMode, mcqAiSetAnswerMode, mcqAiHandleImageSelect, mcqAiRemoveImage, mcqAiShareToApps, mcqAiCopyPromptAgain,
     // HOME module
     openHomePromptModal, closeHomePromptModal, homeTogglePromptCategory, homeTogglePromptText, homeCopyPrompt,
     openHomeRoutineModal, closeHomeRoutineModal, homeSelectRoutineDay, homeShowRoutineAll, homeAddRoutineSubject, homeEditRoutineSubject, homeDeleteRoutineSubject,
     openHomeDiaryModal, closeHomeDiaryModal, homeDiaryDateChange, homeDiaryShiftDate, homeDiaryAddSubject, homeDiaryRemoveSubject, homeDiarySaveLesson,
+    homeDiaryOpenSubjectPicker, homeDiaryCloseSubjectPicker, homeDiaryPickSubject,
     homeDiaryShowOverview, homeDiaryOpenEntry, homeDiaryNewEntry, homeDiaryOverviewShowAllDays,
     homeSyncRoutineDiaryFromSheet,
     homeToggleSnapshot,
+    aiSyncExamHistoryFromSheet,
+    mcqSyncHistoryFromSheet,
   };
 })();
 
