@@ -1,6 +1,6 @@
 {
-  "name": "MCQ Practice App",
-  "short_name": "MCQ",
+  "name": "Exam Test",
+  "short_name": "EXAM",
   "description": "MCQ Practice & Quiz App",
   "start_url": "./index.html",
   "display": "standalone",
