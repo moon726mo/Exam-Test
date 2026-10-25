@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mcq-app-v5';
+const CACHE_NAME = 'mcq-app-v6';
 const ASSETS = [
   './',
   './index.html',
