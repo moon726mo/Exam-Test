@@ -1170,10 +1170,10 @@ body.has-nav .screen{padding-bottom:76px}
 ══════════════════════════════════════ -->
 <div id="screen-ai-answer" class="screen">
   <div class="exam-header">
-    <button class="btn btn-icon btn-secondary btn-sm" onclick="APP.showScreen('ai-home')" title="ফিরে যান">✕</button>
     <div class="exam-progress-wrap">
       <div class="progress-text">AI টেস্ট — উত্তর দিন</div>
     </div>
+    <button class="btn btn-icon btn-secondary btn-sm" onclick="APP.showScreen('ai-home')" title="ফিরে যান">✕</button>
   </div>
 
   <div class="ai-q-card">
@@ -1240,10 +1240,10 @@ body.has-nav .screen{padding-bottom:76px}
 ══════════════════════════════════════ -->
 <div id="screen-mcq-ai-answer" class="screen">
   <div class="exam-header">
-    <button class="btn btn-icon btn-secondary btn-sm" onclick="APP.showScreen('home')" title="ফিরে যান">✕</button>
     <div class="exam-progress-wrap">
       <div class="progress-text">AI টেস্ট — উত্তর দিন</div>
     </div>
+    <button class="btn btn-icon btn-secondary btn-sm" onclick="APP.mcqAiExit()" title="ফিরে যান">✕</button>
   </div>
 
   <!-- Question Filter -->
@@ -1320,11 +1320,11 @@ body.has-nav .screen{padding-bottom:76px}
 ══════════════════════════════════════ -->
 <div id="screen-ai-exam" class="screen">
   <div class="exam-header">
-    <button class="btn btn-icon btn-secondary btn-sm" onclick="APP.aiShowExitExamConfirm()" title="বের হন">✕</button>
     <div class="exam-progress-wrap text-center">
       <div class="progress-text" id="ai-exam-paper-title">প্রশ্নপত্র</div>
     </div>
     <div class="exam-timer hidden" id="ai-exam-timer">00:00</div>
+    <button class="btn btn-icon btn-secondary btn-sm" onclick="APP.aiShowExitExamConfirm()" title="বের হন">✕</button>
   </div>
 
   <div style="display:flex;justify-content:flex-end;margin-bottom:14px">
@@ -4193,7 +4193,10 @@ const APP = (() => {
               <div style="font-size:11px;color:var(--text3);margin-bottom:3px">প্রম্পট ${idx+1}${p.source==='sheet'?' · 📄 Sheet':''}</div>
               <div class="home-prompt-text" style="font-size:13px;color:var(--text2);white-space:pre-wrap">${preview}</div>
             </div>
-            <button class="btn btn-icon btn-secondary btn-sm" style="flex-shrink:0" onclick="event.stopPropagation();APP.homeCopyPrompt('${p.id}')" title="কপি করুন">📋</button>
+            <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">
+              <button class="btn btn-icon btn-secondary btn-sm" onclick="event.stopPropagation();APP.homePromptToAiTest('${p.id}')" title="AI TEST-এ খুলুন">🧠</button>
+              <button class="btn btn-icon btn-secondary btn-sm" onclick="event.stopPropagation();APP.homeCopyPrompt('${p.id}')" title="কপি করুন">📋</button>
+            </div>
           </div>
         </div>`;
       }).join('');
@@ -4236,6 +4239,29 @@ const APP = (() => {
     const p = state.ai.prompts.find(x => x.id === id);
     if (!p) { toast('❌ প্রম্পট পাওয়া যায়নি'); return; }
     copyTextToClipboard(p.text).then(ok => toast(ok ? '✅ ক্লিপবোর্ডে কপি হয়েছে' : '❌ কপি ব্যর্থ'));
+  }
+
+  // HOME → PROMPT তালিকা থেকে 🧠 চাপলে AI TEST পেজ খোলে, ওই প্রম্পট auto-select হয়ে থাকে
+  // (একই state.ai.prompts / একই selection ব্যবহার হয়, আলাদা কপি নেই)
+  function homePromptToAiTest(id) {
+    const p = state.ai.prompts.find(x => x.id === id);
+    if (!p) { toast('❌ প্রম্পট পাওয়া যায়নি'); return; }
+    mcqAiLocalState.selectedPromptId = id;
+    mcqAiLocalState.expandedPromptCategory = p.category || 'অন্যান্য';
+    _mcqAiReturn = 'app-home';
+    closeHomePromptModal();
+    showScreen('mcq-ai-answer');
+    mcqAiUpdateSelectedPromptPreview();
+    mcqAiUpdateQCountInfo();
+    toast('✅ প্রম্পট সিলেক্ট হয়েছে');
+  }
+
+  // AI TEST পেজ থেকে বের হওয়া — যেখান থেকে এসেছে সেখানেই ফিরে যায়
+  let _mcqAiReturn = null;
+  function mcqAiExit() {
+    const to = _mcqAiReturn || 'home';
+    _mcqAiReturn = null;
+    showScreen(to);
   }
 
   // ─── HOME SCREEN: সাপ্তাহিক ROUTINE ───
@@ -5441,7 +5467,7 @@ const APP = (() => {
       case 'result': goHome(); break;
       case 'ai-answer':
       case 'ai-result': showScreen('ai-home'); break;
-      case 'mcq-ai-answer': showScreen('home'); break;
+      case 'mcq-ai-answer': mcqAiExit(); break;
       case 'ai-home':
         if (!$('ai-step-questions').classList.contains('hidden')) aiGoBack('category');
         else if (!$('ai-step-category').classList.contains('hidden')) aiGoBack('chapter');
@@ -5512,7 +5538,7 @@ const APP = (() => {
     mcqAiOpenPromptModal, mcqAiClosePromptModal, mcqAiAddPrompt, mcqAiDeletePrompt, mcqAiSelectPrompt, mcqAiTogglePromptCategory,
     mcqAiSetExamMode, mcqAiSetAnswerMode, mcqAiHandleImageSelect, mcqAiRemoveImage, mcqAiShareToApps, mcqAiCopyPromptAgain,
     // HOME module
-    openHomePromptModal, closeHomePromptModal, homeTogglePromptCategory, homeTogglePromptText, homeCopyPrompt,
+    openHomePromptModal, closeHomePromptModal, homeTogglePromptCategory, homeTogglePromptText, homeCopyPrompt, homePromptToAiTest, mcqAiExit,
     openHomeRoutineModal, closeHomeRoutineModal, homeSelectRoutineDay, homeShowRoutineAll, homeAddRoutineSubject, homeEditRoutineSubject, homeDeleteRoutineSubject,
     homeDiaryInit, homeDiaryDateChange, homeDiaryShiftDate, homeDiaryAddSubject, homeDiaryRemoveSubject, homeDiarySaveLesson,
     homeDiaryOpenSubjectPicker, homeDiaryCloseSubjectPicker, homeDiaryPickSubject,
